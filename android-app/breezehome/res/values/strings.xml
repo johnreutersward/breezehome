@@ -4,5 +4,7 @@
     <string name="app_name">breezehome</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="status">status</string>
+    <string name="auth">Authenticate</string>
 
 </resources>
