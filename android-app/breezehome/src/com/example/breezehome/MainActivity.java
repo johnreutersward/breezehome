@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
 	WifiManager wifi;
 	WifiInfo wifiInfo;
 	TextView status;
+	WifiConfiguration wifiConf;
 	
 	
     @Override
@@ -43,10 +44,20 @@ public class MainActivity extends Activity {
     }
     
     public void authenticate(View view) {
-    	Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
-    	startActivity(browserIntent);
-    	//wifi.disconnect();
     	
+    	// Set up the connection configuration.
+    	wifiConf = (WifiConfiguration) new WifiConfiguration();
+    	wifiConf.SSID = "\"testAP\"";
+    	wifiConf.preSharedKey = "\"password\"";
+    	wifiConf.hiddenSSID = false;
+    	int netID = wifi.addNetwork(wifiConf);
+    	boolean connectSuccess = wifi.enableNetwork(netID, true);
+    	
+    	// If we are connected to the correct AP we can now go over to the mobile site.
+    	if (connectSuccess) {
+    		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
+    		startActivity(browserIntent);
+    	}
     }
     
 }

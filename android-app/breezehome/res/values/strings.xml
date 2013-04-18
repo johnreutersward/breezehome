@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="status">status</string>
     <string name="auth">Authenticate</string>
+    <string name="logo">App Logo</string>
 
 </resources>

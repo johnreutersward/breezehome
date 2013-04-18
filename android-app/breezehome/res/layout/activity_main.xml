@@ -28,10 +28,11 @@
 
     <ImageView
         android:id="@+id/imageView1"
+        android:contentDescription="@string/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/textViewStatus"
         android:layout_alignParentTop="true"
-        android:src="@drawable/breezehome_logo_1536x512" />
+        android:src="@drawable/breezehome_logo_1448x206" />
 
 </RelativeLayout>
