@@ -7,5 +7,6 @@
     <string name="status">status</string>
     <string name="auth">Authenticate</string>
     <string name="logo">App Logo</string>
+    <string name="help">Hold the device close to a tag to begin</string>
 
 </resources>

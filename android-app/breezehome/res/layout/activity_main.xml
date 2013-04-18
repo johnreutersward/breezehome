@@ -8,31 +8,42 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <Button
-        android:id="@+id/buttonAuth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:onClick="authenticate"
-        android:text="@string/auth" />
-
     <TextView
         android:id="@+id/textViewStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/buttonAuth"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="73dp"
+        android:layout_marginBottom="35dp"
         android:text="@string/status" />
+
+    <TextView
+        android:id="@+id/textViewHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:text="@string/help"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/buttonAuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="162dp"
+        android:onClick="authenticate"
+        android:text="@string/auth" />
 
     <ImageView
         android:id="@+id/imageView1"
-        android:contentDescription="@string/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textViewStatus"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/logo"
         android:src="@drawable/breezehome_logo_1448x206" />
 
 </RelativeLayout>
