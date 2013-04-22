@@ -1,13 +1,13 @@
 import cherrypy
-import ../media-player/media
+# import ../media-player/media
 
 class webserver:
-	def index(self):
-		return <a href="/play">play</a>
-	def index(self, playbtn):
-		if playbtn = "play"
-			play()
-			return <a href="../pause">pause</a>
-		if playbtn = "pause"
-			pause()
-			return <a href="../play">play</a>
+	def media_player(self, **kwargs):
+		fields = kwargs
+		playing = fields.get('playing', 'False')
+		if(playing=='True'):
+			return '<a href="?playing=False">pause</a>'
+		else:
+			return '<a href="?playing=True">play</a>'
+	media_player.exposed = True
+cherrypy.quickstart(webserver())
