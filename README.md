@@ -1,4 +1,4 @@
 breezehome
 ==========
 
-Easy to configure WSN-based smart homes using RFID/NFC
+Easy to configure smart homes using RFID/NFC and Network Service Discovery
