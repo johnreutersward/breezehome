@@ -38,6 +38,8 @@ public class MainActivity extends Activity {
 	private boolean disconnectOccurred;
 	public NsdManager myNsdManager;
 	public NsdManager.DiscoveryListener discoveryListener; 
+	public NsdManager.ResolveListener resolveListener;
+	public NsdServiceInfo myNsdService;
 	
 	// Check if breezehome responds to HTTP requests. 
 	private class BreezeHomeWebCheck extends AsyncTask<String, Void, Boolean> {
@@ -98,6 +100,8 @@ public class MainActivity extends Activity {
 	    }
 	};
 	
+	
+	// NSD Scanner
 	public void initNsdScanner() {
 		
 		Log.d("NSD", "initNsdScanner()");
@@ -125,6 +129,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onServiceFound(NsdServiceInfo serviceInfo) {
 				Log.d("NSD", "NSD service found: " + serviceInfo.getServiceName() + " on " + serviceInfo.getPort() + " type " + serviceInfo.getServiceType());
+				myNsdManager.resolveService(serviceInfo, resolveListener);
 				
 			}
 			
@@ -146,6 +151,23 @@ public class MainActivity extends Activity {
 		myNsdManager.discoverServices( "_http._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener);
 	}
 	
+	// NSD Resolver
+	public void initNsdResolver() {
+	    resolveListener = new NsdManager.ResolveListener() {
+
+	        @Override
+	        public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+	            // Called when the resolve fails.  Use the error code to debug.
+	            Log.e("NSD", "Resolve failed" + errorCode);
+	        }
+
+	        @Override
+	        public void onServiceResolved(NsdServiceInfo serviceInfo) {
+	            Log.e("NSD", "Resolve Succeeded. " + serviceInfo.getHost().toString());
+	        }
+	    };
+	}
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,6 +187,7 @@ public class MainActivity extends Activity {
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         myNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
         initNsdScanner();
+        initNsdResolver();
     	
     	// Unless wifi is enabled there is no point to continue. 
         if (wifi.isWifiEnabled() == false) {
