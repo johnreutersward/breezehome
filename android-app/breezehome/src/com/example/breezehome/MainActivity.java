@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.net.Uri;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -34,6 +36,8 @@ public class MainActivity extends Activity {
 	private String breezehomeUrl;
 	private String currentSSID;
 	private boolean disconnectOccurred;
+	public NsdManager myNsdManager;
+	public NsdManager.DiscoveryListener discoveryListener; 
 	
 	// Check if breezehome responds to HTTP requests. 
 	private class BreezeHomeWebCheck extends AsyncTask<String, Void, Boolean> {
@@ -65,8 +69,9 @@ public class MainActivity extends Activity {
 			 Log.d("DEBUG", "AsyncTask onPostExecute running");
 			 if (result == true) {
 				 Log.d("DEBUG", "AsyncTask onPostExecute opening browser");
-				 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(breezehomeUrl));
-				 startActivity(browserIntent);
+				 startNsdScan();
+				 //Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(breezehomeUrl));
+				 //startActivity(browserIntent);
 			 } 
 	     }
 	 }
@@ -93,6 +98,54 @@ public class MainActivity extends Activity {
 	    }
 	};
 	
+	public void initNsdScanner() {
+		
+		Log.d("NSD", "initNsdScanner()");
+		discoveryListener = new NsdManager.DiscoveryListener() {
+			
+			@Override
+			public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+				Log.d("NSD", "ERROR: NSD STOP FAILED + [" + errorCode + "]");
+				myNsdManager.stopServiceDiscovery(this);
+			}
+			
+			@Override
+			public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+				Log.d("NSD", "ERROR: NSD START FAILED [" + errorCode + "]");
+				myNsdManager.stopServiceDiscovery(this);
+				
+			}
+			
+			@Override
+			public void onServiceLost(NsdServiceInfo serviceInfo) {
+				Log.d("NSD", "NSD service _lost_ to " + serviceInfo.getServiceName() + " on " + serviceInfo.getPort() + " type " + serviceInfo.getServiceType());
+				
+			}
+			
+			@Override
+			public void onServiceFound(NsdServiceInfo serviceInfo) {
+				Log.d("NSD", "NSD service found: " + serviceInfo.getServiceName() + " on " + serviceInfo.getPort() + " type " + serviceInfo.getServiceType());
+				
+			}
+			
+			@Override
+			public void onDiscoveryStopped(String serviceType) {
+				Log.d("NSD", "NSD stopped " + serviceType);
+				
+			}
+			
+			@Override
+			public void onDiscoveryStarted(String serviceType) {
+				Log.d("NSD", "NSD running " + serviceType);
+				
+			}
+		};	
+	}
+	
+	public void startNsdScan() {
+		myNsdManager.discoverServices( "_http._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+	}
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +154,8 @@ public class MainActivity extends Activity {
         // The following TextViews will be updated in the application life cycle. 
         status = (TextView) findViewById(R.id.textViewStatus);
         help = (TextView) findViewById(R.id.textViewHelp);
+        
+        
     }
    
     @Override
@@ -108,6 +163,8 @@ public class MainActivity extends Activity {
         super.onResume();
 		help.setText("Hold the device close to a tag to begin");
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        myNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+        initNsdScanner();
     	
     	// Unless wifi is enabled there is no point to continue. 
         if (wifi.isWifiEnabled() == false) {
@@ -117,7 +174,7 @@ public class MainActivity extends Activity {
         // TODO: Wait until we get relevant info from NFC/RDID.
         breezehomeSSID = "\"breezehome\"";
         breezehomePass = "\"whiterun\"";
-        breezehomeUrl = "http://www.google.se";
+        breezehomeUrl = "http://192.168.1.102/media_player/";
         
         // Check if device is already connected to a access point. 
         wifiInfo = wifi.getConnectionInfo();
