@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.net.Uri;
 import android.net.nsd.NsdManager;
@@ -27,8 +32,8 @@ public class MainActivity extends Activity {
 
 	private WifiManager wifi;
 	private WifiInfo wifiInfo;
-	private TextView status;
 	private TextView help;
+	private ListView nsdList;
 	private WifiConfiguration wifiConf;
 	private IntentFilter intentFilter;
 	private String breezehomeSSID;
@@ -40,6 +45,8 @@ public class MainActivity extends Activity {
 	public NsdManager.DiscoveryListener discoveryListener; 
 	public NsdManager.ResolveListener resolveListener;
 	public NsdServiceInfo myNsdService;
+	public ArrayList<NsdServiceInfo> resultList;
+	public ArrayAdapter adapter;
 	
 	// Check if breezehome responds to HTTP requests. 
 	private class BreezeHomeWebCheck extends AsyncTask<String, Void, Boolean> {
@@ -70,10 +77,11 @@ public class MainActivity extends Activity {
 		 protected void onPostExecute(Boolean result) {
 			 Log.d("DEBUG", "AsyncTask onPostExecute running");
 			 if (result == true) {
-				 Log.d("DEBUG", "AsyncTask onPostExecute opening browser");
-				 startNsdScan();
-				 //Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(breezehomeUrl));
-				 //startActivity(browserIntent);
+				 Log.d("DEBUG", "AsyncTask onPostExecute we have a connection!");
+				 help.setText("Connecting to breezehome, please wait");
+ 				 //startNsdScan();
+				 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(breezehomeUrl));
+				 startActivity(browserIntent);
 			 } 
 	     }
 	 }
@@ -93,7 +101,8 @@ public class MainActivity extends Activity {
 	    		} else if  (stateInfo.name() == SupplicantState.COMPLETED.name()) {
 	    			if (disconnectOccurred == true) {
 	    				disconnectOccurred = false;
-	    				openBrowser(breezehomeUrl);
+	    				startNsdScan();
+	    				//openBrowser(breezehomeUrl);
 	    			}
 	    		}
 	    	} 
@@ -121,8 +130,15 @@ public class MainActivity extends Activity {
 			}
 			
 			@Override
-			public void onServiceLost(NsdServiceInfo serviceInfo) {
+			public void onServiceLost(final NsdServiceInfo serviceInfo) {
 				Log.d("NSD", "NSD service _lost_ to " + serviceInfo.getServiceName() + " on " + serviceInfo.getPort() + " type " + serviceInfo.getServiceType());
+				MainActivity.this.runOnUiThread(new Runnable() {
+	                @Override
+	                public void run() {
+	                	removeNsdServiceFromUI(serviceInfo);
+
+	                }
+	            });
 				
 			}
 			
@@ -148,6 +164,8 @@ public class MainActivity extends Activity {
 	}
 	
 	public void startNsdScan() {
+		//unregisterReceiver(broadcastReceiver);
+		help.setText("Please wait while I look for services...");
 		myNsdManager.discoverServices( "_http._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener);
 	}
 	
@@ -162,8 +180,15 @@ public class MainActivity extends Activity {
 	        }
 
 	        @Override
-	        public void onServiceResolved(NsdServiceInfo serviceInfo) {
+	        public void onServiceResolved(final NsdServiceInfo serviceInfo) {
 	            Log.e("NSD", "Resolve Succeeded. " + serviceInfo.getHost().toString());
+	            MainActivity.this.runOnUiThread(new Runnable() {
+	                @Override
+	                public void run() {
+	                	addNsdServiceToUI(serviceInfo);
+
+	                }
+	            });
 	        }
 	    };
 	}
@@ -173,9 +198,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        // The following TextViews will be updated in the application life cycle. 
-        status = (TextView) findViewById(R.id.textViewStatus);
+        // The following TextViews will be updated in the application life cycle. s
         help = (TextView) findViewById(R.id.textViewHelp);
+        nsdList = (ListView) findViewById(R.id.listView1);
+        resultList = new ArrayList<NsdServiceInfo>();
+        adapter = new ArrayAdapter<NsdServiceInfo>(this, android.R.layout.simple_list_item_1, resultList);
+        nsdList.setAdapter(adapter);
+        nsdList.setOnItemClickListener(serviceClickedhandler);
         
         
     }
@@ -183,7 +212,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-		help.setText("Hold the device close to a tag to begin");
+		help.setText("Checking connection status, please wait");
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         myNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
         initNsdScanner();
@@ -197,32 +226,63 @@ public class MainActivity extends Activity {
         // TODO: Wait until we get relevant info from NFC/RDID.
         breezehomeSSID = "\"breezehome\"";
         breezehomePass = "\"whiterun\"";
-        breezehomeUrl = "http://192.168.1.102/media_player/";
+        breezehomeUrl = "http://192.168.1.100/media_player/";
         
         // Check if device is already connected to a access point. 
         wifiInfo = wifi.getConnectionInfo();
         if (wifiInfo != null) {
         	currentSSID = wifiInfo.getSSID();
-        	status.append(currentSSID);
         	// Check if device is already connected to the specified breezehome access point. 
         	if (currentSSID.equalsIgnoreCase(breezehomeSSID)) {
-        		openBrowser(breezehomeUrl);
+        		startNsdScan();
         	}	
         }
+        help.setText("Hold the device close to a tag to begin");
     }
     
     @Override
     protected void onPause() {
     	super.onPause();
+    	try {
+    		unregisterReceiver(broadcastReceiver);
+    	} catch (IllegalArgumentException e) {
+    		// This is okay...
+    	}
     }
     
+    
+    // Call this when the user selects a service from the result list
     private void openBrowser(String localUrl) {
-    	help.setText("Connecting to breezehome, please wait");
     	new BreezeHomeWebCheck().execute(localUrl);
     } 
     
+    
+    private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+			// TODO Auto-generated method stub
+			openBrowser(breezehomeUrl);
+			
+		}
+    	
+    };
+    
+    private void removeNsdServiceFromUI(NsdServiceInfo result) {
+    	resultList.remove(result);
+    	adapter.notifyDataSetChanged();
+    }
+    
+    private void addNsdServiceToUI(NsdServiceInfo result) {
+    	resultList.add(result);
+        //resultList.add(result.getServiceName().toString() + " - " + result.getHost());
+    	adapter.notifyDataSetChanged();
+    	
+    }
+    
     // TODO: This button will be replaced with a non-interactive task started after NFC/RFID scanning is complete.
     public void authenticate(View view) {
+    	help.setText("Connecting to breezehome, please wait");
     	wifiConf = (WifiConfiguration) new WifiConfiguration();
     	wifiConf.SSID = breezehomeSSID;
     	wifiConf.preSharedKey = breezehomePass;
