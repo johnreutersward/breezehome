@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
 	public ArrayList<NsdServiceInfo> resultList;
 	public ArrayAdapter adapter;
 	
-	// Monitor the wifi state to discover when we have connected to the breezehome access point.
+	// Monitor WiFi state during authentication.
 	public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
 	};
 	
 	
-	// NSD Scanner
+	// Network Service Discovery
 	public void initNsdScanner() {
 		
 		Log.d("NSD", "initNsdScanner()");
@@ -148,6 +148,36 @@ public class MainActivity extends Activity {
 	    };
 	}
 	
+	private void removeNsdServiceFromUI(NsdServiceInfo result) {
+    	resultList.remove(result);
+    	adapter.notifyDataSetChanged();
+    }
+    
+    private void addNsdServiceToUI(NsdServiceInfo result) {
+    	resultList.add(result);
+        //resultList.add(result.getServiceName().toString() + " - " + result.getHost());
+    	adapter.notifyDataSetChanged();
+    	
+    }
+	
+    // NFC/RFID scanner
+    
+    // TODO: This button will be replaced with a non-interactive task started after NFC/RFID scanning is complete.
+    public void authenticate(View view) {
+    	help.setText("Connecting to breezehome, please wait");
+    	wifiConf = (WifiConfiguration) new WifiConfiguration();
+    	wifiConf.SSID = breezehomeSSID;
+    	wifiConf.preSharedKey = breezehomePass;
+    	wifiConf.hiddenSSID = false;
+    	int netID = wifi.addNetwork(wifiConf);
+    	wifi.enableNetwork(netID, true);
+    	intentFilter = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+    	registerReceiver(broadcastReceiver, intentFilter);
+    }
+    
+	
+	// MainActivity UI
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,28 +242,7 @@ public class MainActivity extends Activity {
 		}
     };
     
-    private void removeNsdServiceFromUI(NsdServiceInfo result) {
-    	resultList.remove(result);
-    	adapter.notifyDataSetChanged();
-    }
     
-    private void addNsdServiceToUI(NsdServiceInfo result) {
-    	resultList.add(result);
-        //resultList.add(result.getServiceName().toString() + " - " + result.getHost());
-    	adapter.notifyDataSetChanged();
-    	
-    }
     
-    // TODO: This button will be replaced with a non-interactive task started after NFC/RFID scanning is complete.
-    public void authenticate(View view) {
-    	help.setText("Connecting to breezehome, please wait");
-    	wifiConf = (WifiConfiguration) new WifiConfiguration();
-    	wifiConf.SSID = breezehomeSSID;
-    	wifiConf.preSharedKey = breezehomePass;
-    	wifiConf.hiddenSSID = false;
-    	int netID = wifi.addNetwork(wifiConf);
-    	wifi.enableNetwork(netID, true);
-    	intentFilter = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-    	registerReceiver(broadcastReceiver, intentFilter);
-    }
+    
 }
