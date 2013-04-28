@@ -1,12 +1,7 @@
 package com.example.breezehome;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -20,7 +15,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.net.Uri;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiConfiguration;
@@ -48,45 +42,6 @@ public class MainActivity extends Activity {
 	public ArrayList<NsdServiceInfo> resultList;
 	public ArrayAdapter adapter;
 	
-	// Check if breezehome responds to HTTP requests. 
-	private class BreezeHomeWebCheck extends AsyncTask<String, Void, Boolean> {
-		protected Boolean doInBackground(String... urls) {
-			Log.d("DEBUG", "AsyncTask doInBackground running");
-			String checkURL = urls[0];
-			boolean connectedToBreeze = false;
-				do {
-					try {
-						URL url = new URL(checkURL);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						connection.setRequestProperty("User-Agent", "yourAgent");
-						connection.setRequestProperty("Connection", "close");
-						connection.setConnectTimeout(1000);
-						if (connection.getResponseCode() == 200) {
-							connectedToBreeze = true;
-							return true;
-						}
-					} catch (MalformedURLException e) {
-						
-					} catch (IOException e) {
-						
-					}
-				} while (connectedToBreeze == false);
-				return false;
-	     }
-		 
-		 protected void onPostExecute(Boolean result) {
-			 Log.d("DEBUG", "AsyncTask onPostExecute running");
-			 if (result == true) {
-				 Log.d("DEBUG", "AsyncTask onPostExecute we have a connection!");
-				 help.setText("Connecting to breezehome, please wait");
- 				 //startNsdScan();
-				 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(breezehomeUrl));
-				 startActivity(browserIntent);
-			 } 
-	     }
-	 }
-	
-	
 	// Monitor the wifi state to discover when we have connected to the breezehome access point.
 	public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 	    @Override
@@ -101,8 +56,8 @@ public class MainActivity extends Activity {
 	    		} else if  (stateInfo.name() == SupplicantState.COMPLETED.name()) {
 	    			if (disconnectOccurred == true) {
 	    				disconnectOccurred = false;
-	    				startNsdScan();
-	    				//openBrowser(breezehomeUrl);
+	    				//startNsdScan();
+	    				new OpenBrowser().execute(breezehomeUrl, MainActivity.this);
 	    			}
 	    		}
 	    	} 
@@ -250,22 +205,11 @@ public class MainActivity extends Activity {
     	}
     }
     
-    
-    // Call this when the user selects a service from the result list
-    private void openBrowser(String localUrl) {
-    	new BreezeHomeWebCheck().execute(localUrl);
-    } 
-    
-    
     private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {
-
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 			// TODO Auto-generated method stub
-			openBrowser(breezehomeUrl);
-			
 		}
-    	
     };
     
     private void removeNsdServiceFromUI(NsdServiceInfo result) {
