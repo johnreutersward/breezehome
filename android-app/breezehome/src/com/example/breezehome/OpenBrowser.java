@@ -8,6 +8,7 @@ import java.net.URL;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /*
  * Opens device browser once we have received HTTP 200 from server.
@@ -41,6 +42,7 @@ public class OpenBrowser extends AsyncTask<Object, Void, Boolean> {
 	 
 	 protected void onPostExecute(Boolean response) {
 		 if (response) {
+			 Log.d("DEBUG", "Got HTTP 200 from server, starting browser intent");
 			 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 			 callerActivity.startActivity(browserIntent);
 		 }
