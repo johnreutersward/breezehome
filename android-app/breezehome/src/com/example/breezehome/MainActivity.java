@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
 	    				Log.d("DEBUG", "Connected to access point");
 	    				// Add service to List
 	    				addService(breezehomeService);
-	    				
+	    				helpTextView.setText("Select a service or scan a new tag.");
 	    			}
 	    		}
 	    	} 
@@ -86,9 +86,9 @@ public class MainActivity extends Activity {
     	// TODO: Wait until we get relevant info from NFC/RDID.
         breezehomeSSID = "\"breezehome\"";
         breezehomePass = "\"whiterun\"";
-        breezehomeName = "breezehome";
-        breezehomeDescription = "media";
-        breezehomeUrl = "http://www.google.se";
+        breezehomeName = "breezehomeMedia";
+        breezehomeDescription = "Play music!";
+        breezehomeUrl = "http://192.168.1.100";
         breezehomeService = new BreezehomeService(breezehomeName, breezehomeDescription, breezehomeUrl);
     	
         helpTextView.setText("Connecting to breezehome, please wait");
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
         helpTextView = (TextView) findViewById(R.id.textViewHelp);
         serviceListView = (ListView) findViewById(R.id.listViewService);
         serviceList = new ArrayList<BreezehomeService>();
-        adapter = new ArrayAdapter<BreezehomeService>(this, android.R.layout.simple_list_item_1, serviceList);
+        adapter = new ArrayAdapter<BreezehomeService>(this, R.layout.service_row, serviceList);
         serviceListView.setAdapter(adapter);
         serviceListView.setOnItemClickListener(serviceClickedhandler);   
     }
@@ -165,9 +165,10 @@ public class MainActivity extends Activity {
     
     private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {
 		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		public void onItemClick(AdapterView parent, View view, int position, long id) {
 			// TODO Auto-generated method stub
-			new OpenBrowser().execute(breezehomeUrl, MainActivity.this);
+			Log.d("DEBUG", "User clicked on: " + serviceList.get(position));
+			new OpenBrowser().execute(serviceList.get(position).getUrl(), MainActivity.this);
 		}
     };  
     

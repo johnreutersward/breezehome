@@ -13,8 +13,11 @@ public class BreezehomeService {
 	}
 	
 	public String toString() {
-		
 		return name + " - " + description;
+	}
+	
+	public String getUrl() {
+		return url;
 	}
 
 }
