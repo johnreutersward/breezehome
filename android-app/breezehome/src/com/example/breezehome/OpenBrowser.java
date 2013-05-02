@@ -22,6 +22,7 @@ public class OpenBrowser extends AsyncTask<Object, Void, Boolean> {
 	protected Boolean doInBackground(Object... params) {
 		this.url = (String) params[0];
 		this.callerActivity = (MainActivity) params[1];
+		Log.d("DEBUG", "OpenBrowser waiting for response from: " + url);
 			while (true) {
 				try {
 					URL _url = new URL(url);

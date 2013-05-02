@@ -26,21 +26,12 @@
         android:text="@string/help"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/buttonAuth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/textViewHelp"
-        android:onClick="authenticate"
-        android:text="@string/auth" />
-
     <ListView
         android:id="@+id/listViewService"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="20dip"
-        android:layout_below="@+id/buttonAuth"
+        android:paddingTop="35dip"
+        android:layout_below="@+id/textViewHelp"
         android:layout_centerHorizontal="true" >
     </ListView>
 

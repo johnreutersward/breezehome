@@ -3,7 +3,9 @@ package com.example.breezehome;
 import java.util.ArrayList;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +17,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.SupplicantState;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
 
 public class MainActivity extends Activity {
 
@@ -43,6 +48,8 @@ public class MainActivity extends Activity {
 	private BreezehomeService breezehomeService;
 	public ArrayList<BreezehomeService> serviceList;
 	public ArrayAdapter<BreezehomeService> adapter;
+	public NfcAdapter mNfcAdapter;
+	private PendingIntent mNfcPendingIntent;
 	
 	// Monitor WiFi state during authentication.
 	public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -79,19 +86,45 @@ public class MainActivity extends Activity {
     }
 	
     // NFC/RFID scanner
+    @Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		resolveIntent(intent);
+	}
     
-    // TODO: This button will be replaced with a non-interactive task started after NFC/RFID scanning is complete.
-    public void authenticate(View view) {
-    	
-    	// TODO: Wait until we get relevant info from NFC/RDID.
-        breezehomeSSID = "\"breezehome\"";
-        breezehomePass = "\"whiterun\"";
-        breezehomeName = "breezehomeMedia";
-        breezehomeDescription = "Play music!";
-        breezehomeUrl = "http://192.168.1.100";
-        breezehomeService = new BreezehomeService(breezehomeName, breezehomeDescription, breezehomeUrl);
-    	
-        helpTextView.setText("Connecting to breezehome, please wait");
+    private void resolveIntent(Intent intent) {
+		String action = intent.getAction();
+		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+			Parcelable[] rawMsgs = intent
+					.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+			if (rawMsgs != null) {
+				NdefMessage[] messages = new NdefMessage[rawMsgs.length];
+				for (int i = 0; i < rawMsgs.length; i++) {
+					messages[i] = (NdefMessage) rawMsgs[i];
+				}
+				String str = new String(
+						messages[0].getRecords()[0].getPayload());
+				Log.d("NFC",str);
+				String[] nfcInfo = str.split(";");
+				if (nfcInfo.length == 4) {
+					Log.d("NFC","Scanned a service tag");
+					addService(new BreezehomeService(nfcInfo[1], nfcInfo[2], nfcInfo[3]));
+				} else if (nfcInfo.length == 6) {
+					Log.d("NFC","Scanned a auth/service tag");
+					breezehomeSSID = "\"" + nfcInfo[1] + "\"";
+					breezehomePass = "\"" + nfcInfo[2] + "\"";
+					breezehomeService = new BreezehomeService(nfcInfo[3], nfcInfo[4], nfcInfo[5]);
+					wifiAuth();
+				}
+				for (int i = 0; i < nfcInfo.length; i++) {
+					Log.d("NFC",nfcInfo[i]);
+				}
+			}
+		}
+	}
+    
+    private void wifiAuth() {
+    	helpTextView.setText("Connecting to breezehome, please wait");
     	wifiConf = (WifiConfiguration) new WifiConfiguration();
     	wifiConf.SSID = breezehomeSSID;
     	wifiConf.preSharedKey = breezehomePass;
@@ -100,9 +133,9 @@ public class MainActivity extends Activity {
     	wifi.enableNetwork(netID, true);
     	intentFilter = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
     	registerReceiver(broadcastReceiver, intentFilter);
+    	
     }
     
-	
 	// MainActivity UI
 	
     @Override
@@ -115,7 +148,11 @@ public class MainActivity extends Activity {
         serviceList = new ArrayList<BreezehomeService>();
         adapter = new ArrayAdapter<BreezehomeService>(this, R.layout.service_row, serviceList);
         serviceListView.setAdapter(adapter);
-        serviceListView.setOnItemClickListener(serviceClickedhandler);   
+        serviceListView.setOnItemClickListener(serviceClickedhandler);
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter == null) {
+            Log.d("NFC", "NFC Not available");
+        }
     }
    
     @Override
@@ -151,6 +188,12 @@ public class MainActivity extends Activity {
         		helpTextView.setText("Hold the device close to a tag to begin");
         	}
         }
+        
+        Intent intent = new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        mNfcAdapter.enableForegroundDispatch(this, pIntent, null, null);
+        
+        
     }
     
     @Override
@@ -161,6 +204,7 @@ public class MainActivity extends Activity {
     	} catch (IllegalArgumentException e) {
     		// This is okay...
     	}
+    	mNfcAdapter.disableForegroundDispatch(this);
     }
     
     private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {
