@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Breezehome</title>
+	<script src="/js/jquery-1.9.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	// variable=new XMLHttpRequest();
+	// function loadXMLDoc()
+	// {
+	// 	$.get("/toggle"), function () {
+	// 		alert('success!')
+	// 	};
+	// }
+	$('a').click(function (event))
+	{
+		event.preventDefault();
+
+		var url = $(this).attr('href');
+		$.get(url);
+		event.preventDefault();
+		// 	alert(data);
+		// });
+	}
+	</script>
+	<link rel="stylesheet" href="css/bootstrap-responsive.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<div class="container-fluid">
+		<img src="/img/breezehome_logo_1536x512.png">
+	</div>
+	<div class="tab-pane active" id="tab1">
+		<div class="accordion" id="accordion">
+			<div class="accordion-group">
+				<div class="accordion-heading">
+					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-about">
+						<i class="icon-info-sign"></i> About
+					</a>
+				</div>
+				<div id="collapse-about" class="accordion-body collapse in">
+					<div class="accordion-inner">
+						Easy to configure smart homes using RFID/NFC. See avalible services under the services tab.
+					</div>
+				</div>
+			</div>
+			<div class="accordion-group">
+				<div class="accordion-heading">
+					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-services">
+						<i class="icon-globe"></i> Services
+					</a>
+				</div>
+				<div id="collapse-services" class="accordion-body collapse">
+					<div class="accordion-inner">
+						<a href="/prev"><i class="icon-fast-backward"></i></a>
+						<a href="/toggle"><i class="icon-play"></i></a>
+						<a href="/next"><i class="icon-fast-forward"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="accordion-group">
+				<div class="accordion-heading">
+					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-settings">
+						<i class="icon-wrench"></i> Settings
+					</a>
+				</div>
+				<div id="collapse-settings" class="accordion-body collapse">
+					<div class="accordion-inner">
+						Settings ehm?
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
