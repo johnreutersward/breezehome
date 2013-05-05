@@ -6,6 +6,8 @@
 	<title>Breezehome</title>
 	<script src="/js/jquery-1.9.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/script.js"></script>
+	<link rel="stylesheet" href="css/font-awesome.min.css">
 	<link rel="stylesheet" href="css/bootstrap-responsive.css">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/styles.css">
@@ -19,7 +21,7 @@
 			<div class="accordion-group">
 				<div class="accordion-heading">
 					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-about">
-						<i class="icon-info-sign"></i> About
+						<i class="icon-info-sign icon-large"></i> About
 					</a>
 				</div>
 				<div id="collapse-about" class="accordion-body collapse in">
@@ -31,21 +33,21 @@
 			<div class="accordion-group">
 				<div class="accordion-heading">
 					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-services">
-						<i class="icon-globe"></i> Services
+						<i class="icon-music icon-large"></i> Media player
 					</a>
 				</div>
 				<div id="collapse-services" class="accordion-body collapse">
 					<div class="accordion-inner">
-						<a href="#"><i class="icon-fast-backward"></i></a>
-						<a href="#"><i class="icon-play"></i></a>
-						<a href="#"><i class="icon-fast-forward"></i></a>
+						<a id="back" href="#"><i class="icon-fast-backward icon-2x"></i></a>
+						<a id="play" href="#"><i class="icon-play icon-2x"></i></a>
+						<a id="next" href="#"><i class="icon-fast-forward icon-2x"></i></a>
 					</div>
 				</div>
 			</div>
 			<div class="accordion-group">
 				<div class="accordion-heading">
 					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-settings">
-						<i class="icon-wrench"></i> Settings
+						<i class="icon-wrench  icon-large"></i> Settings
 					</a>
 				</div>
 				<div id="collapse-settings" class="accordion-body collapse">
