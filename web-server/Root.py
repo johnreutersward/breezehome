@@ -17,7 +17,7 @@ cherrypy.server.socket_host = '0.0.0.0'
 cherrypy.server.socket_port = 80
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
-template = template_env.get_template('index.html')
+template = template_env.get_template('playlist.html')
 
 class Root(object):
     @cherrypy.expose
@@ -27,6 +27,12 @@ class Root(object):
     @cherrypy.expose
     def play_paus(self):
         media.play()
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return simplejson.dumps(media.current())
+
+    @cherrypy.expose
+    def play(self, nr):
+        media.play(nr)
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
@@ -41,9 +47,16 @@ class Root(object):
         media.play()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps("Done")
+
     @cherrypy.expose
-    def jinja(self):
-        return template.render(name='heeeeello')
+    def add(self, URI):
+        media.add(URI)
+        return "added " + URI
+
+    @cherrypy.expose
+    def playlist(self):
+        p1 = media.playlist()
+        return template.render(playlist=p1)
 
 config = {'/templates':
                 {'tools.staticdir.on': True,

@@ -1,0 +1,7 @@
+<ul>
+{% set i = 1 %}
+{% for track in playlist %}
+	<li><a href="play/{{ i }}">{{ track }}</a></li>
+{% set i = i+1 %}
+{% endfor %}
+</ul>

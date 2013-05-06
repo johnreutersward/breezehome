@@ -9,11 +9,20 @@ def current():
         (out, err) = proc.communicate()
         return out
 
+def playlist():
+        proc = subprocess.Popen(["mpc playlist", "current"], stdout=subprocess.PIPE, shell=True)
+        (out, err) = proc.communicate()
+        result = out.split('\n')
+        return result
+
 def next():
 	os.system("mpc next")
 
 def play():
         os.system("mpc play")
+
+def play(nr):
+        os.system("mpc play " + nr)
 
 def pause():
         os.system("mpc pause")
