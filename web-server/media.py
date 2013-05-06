@@ -5,9 +5,9 @@ def add(uri):
 	os.system("mpc add " + uri)
 
 def current():
-        proc = subprocess.Popen(["mpc", "current"], stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(["mpc current", "current"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
-        return "currently playing " + out
+        return out
 
 def next():
 	os.system("mpc next")

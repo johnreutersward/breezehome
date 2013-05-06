@@ -1,3 +1,2 @@
-
 mpc add test.mp3
-sudo python webserver.py &
+sudo python Root.py &

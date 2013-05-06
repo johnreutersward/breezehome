@@ -1,7 +1,7 @@
 $(document).ready(function () {
 	$("#play").click(function(){
         $.post('/play_paus', function(data) {
-            //alert(data);
+            $("#current").empty().append(data);
         });
 	});
 

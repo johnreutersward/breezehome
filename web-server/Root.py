@@ -4,12 +4,20 @@ import media
 import os
 import json as simplejson
 import sys
+import jinja2
+#from jinja2 import Template, Environment
 
 TEMPLATES_DIR = os.path.join(os.path.abspath("."), u"templates")
 JS_DIR = os.path.join(os.path.abspath("."), u"js")
 CSS_DIR = os.path.join(os.path.abspath("."), u"css")
 IMG_DIR = os.path.join(os.path.abspath("."), u"img")
 FONT_DIR = os.path.join(os.path.abspath("."), u"font")
+
+cherrypy.server.socket_host = '0.0.0.0'
+cherrypy.server.socket_port = 80
+
+template_env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
+template = template_env.get_template('index.html')
 
 class Root(object):
     @cherrypy.expose
@@ -20,7 +28,7 @@ class Root(object):
     def play_paus(self):
         media.play()
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return simplejson.dumps("Done")
+        return simplejson.dumps(media.current())
 
     @cherrypy.expose
     def next(self):
@@ -33,6 +41,9 @@ class Root(object):
         media.play()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps("Done")
+    @cherrypy.expose
+    def jinja(self):
+        return template.render(name='heeeeello')
 
 config = {'/templates':
                 {'tools.staticdir.on': True,
@@ -56,8 +67,11 @@ config = {'/templates':
                 }
         }
 
-def open_page():
-    webbrowser.open("http://127.0.0.1:8080/")
-cherrypy.engine.subscribe('start', open_page)
-cherrypy.tree.mount(Root(), '/', config=config)
-cherrypy.engine.start()
+#def open_page():
+#    webbrowser.open("http://192.168.1.101:80/")
+#cherrypy.server.server_host = '192.168.1.101'
+#cherrypy.server.socket_host = 80
+#cherrypy.engine.subscribe('start', open_page)
+cherrypy.quickstart(Root(), '/', config=config)
+#cherrypy.engine.start()
+#cherrypy.quickstart(Root())
