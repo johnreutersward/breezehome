@@ -19,6 +19,7 @@ cherrypy.server.socket_port = 80
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 template = template_env.get_template('playlist.html')
 
+
 class Root(object):
     @cherrypy.expose
     def index(self):
@@ -32,9 +33,9 @@ class Root(object):
 
     @cherrypy.expose
     def play(self, nr):
-        media.play(nr)
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        return simplejson.dumps(media.current())
+        media.play(int(nr))
+        p1 = media.queue()
+        queue(self)
 
     @cherrypy.expose
     def next(self):
@@ -54,8 +55,8 @@ class Root(object):
         return "added " + URI
 
     @cherrypy.expose
-    def playlist(self):
-        p1 = media.playlist()
+    def queue(self):
+        p1 = media.queue()
         return template.render(playlist=p1)
 
 config = {'/templates':
