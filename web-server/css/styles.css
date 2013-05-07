@@ -5,3 +5,7 @@ a:hover {
 	color: #749a03;
 	text-decoration: none;
 }
+
+#search-table {
+	max-width: 500px;
+}
