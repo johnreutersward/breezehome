@@ -44,15 +44,12 @@ class Root(object):
         media.play(nr)
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
-<<<<<<< HEAD
 
     @cherrypy.expose
     def pause(self):
         media.paus()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
-=======
->>>>>>> 1ee5dfbfac16c33f7f4a3f0f340ab52b62109355
 
     @cherrypy.expose
     def next(self):
