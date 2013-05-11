@@ -1,10 +1,22 @@
 $(document).ready(function () {
     updateQueue();
 
-	$("#play").click(function(){
-        $.post('/play_paus', function(data) {
-            $("#current").empty().append(data);
-        });
+    //Controlling play/pause button.
+    var isPlaying = false;  
+    $("#play-pause").click(function() {
+        if (!isPlaying) {
+            $.post('/play', function(data) {
+                $("#current-song").empty().append(data);
+                $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
+                isPlaying = true;
+            });
+        } else {
+            $.post('/paus', function(data) {
+                $("#current-song").empty().append(data);
+                $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
+                isPlaying = false;
+            });
+        }
     });
 
 	$("#next").click(function(){

@@ -30,7 +30,11 @@ class Root(object):
         return open(os.path.join(TEMPLATES_DIR, u'media_player.html'))
 
     @cherrypy.expose
-    def play_paus(self):
+    def light(self):
+        return open(os.path.join(TEMPLATES_DIR, u'light_switch.html'))
+
+    @cherrypy.expose
+    def play(self):
         media.play()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
@@ -38,6 +42,12 @@ class Root(object):
     @cherrypy.expose
     def play(self, nr):
         media.play(nr)
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return simplejson.dumps(media.current())
+
+    @cherrypy.expose
+    def pause(self):
+        media.paus()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
