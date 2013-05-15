@@ -16,7 +16,7 @@ def queue():
         return result
 
 def search(str):
-        proc = subprocess.Popen(["mpc search " + str, "current"], stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(["mpc search Artist " + str, "current"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
         result = out.split('\n')
         return result
@@ -26,7 +26,7 @@ def changetrack(nr):
                 os.system("mpc del 1")
 
 def next():
-        os.system("mpc next")
+        play(1)
 
 def play():
         os.system("mpc play")

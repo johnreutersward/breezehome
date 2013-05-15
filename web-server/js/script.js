@@ -11,7 +11,7 @@ $(document).ready(function () {
                 isPlaying = true;
             });
         } else {
-            $.post('/paus', function(data) {
+            $.post('/pause', function(data) {
                 $("#current-song").empty().append(data);
                 $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
                 isPlaying = false;

@@ -4,8 +4,8 @@ import media
 import os
 import json as simplejson
 import sys
-#import jinja2
-#from jinja2 import Template, Environment
+import jinja2
+from jinja2 import Template, Environment
 
 TEMPLATES_DIR = os.path.join(os.path.abspath("."), u"templates")
 JS_DIR = os.path.join(os.path.abspath("."), u"js")
@@ -16,8 +16,8 @@ FONT_DIR = os.path.join(os.path.abspath("."), u"font")
 cherrypy.server.socket_host = '0.0.0.0'
 cherrypy.server.socket_port = 80
 
-#template_env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
-#template = template_env.get_template('playlist.html')
+template_env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
+template = template_env.get_template('playlist.html')
 
 
 class Root(object):
@@ -80,13 +80,13 @@ class Root(object):
 
     @cherrypy.expose
     def add(self, uri):
-        #media.add(uri)
+        media.add(uri)
         return "added " + uri
 
-    # @cherrypy.expose
-    # def playlist(self):
-    #     p1 = media.playlist()
-    #     return template.render(playlist=p1)
+    @cherrypy.expose
+    def playlist(self):
+        p1 = media.queue()
+        return template.render(playlist=p1)
 
 config = {'/templates':
                 {'tools.staticdir.on': True,
