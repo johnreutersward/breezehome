@@ -28,6 +28,9 @@ def changetrack(nr):
 def next():
         play(1)
 
+def toggle():
+        os.system("mpc toggle")
+
 def play():
         os.system("mpc play")
 
