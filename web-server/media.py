@@ -34,10 +34,10 @@ def toggle():
 def play():
         os.system("mpc play")
 
-def play(nr):
-        changetrack(nr)
-        os.system("mpc del 0")
-        os.system("mpc play 1")
+# def play(nr):
+#         changetrack(nr)
+#         os.system("mpc del 0")
+#         os.system("mpc play 1")
 
 def pause():
         os.system("mpc pause")

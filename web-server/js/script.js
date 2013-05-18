@@ -4,14 +4,23 @@ $(document).ready(function () {
     //Controlling play/pause button.
     var isPlaying = false;  
     $("#play-pause").click(function() {
+        var url = $(location).attr('href');
+        var n = url.indexOf("?isadmin=True");
+        var a;
+        if (n < 0) {
+            a = "";
+        }
+        else {
+            a = url.substring(n, url.lenght);
+        }
         if (!isPlaying) {
-            $.post('/play', function(data) {
+            $.post('/play' + a, function(data) {
                 $("#current-song").empty().append(data);
                 $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
                 isPlaying = true;
             });
         } else {
-            $.post('/pause', function(data) {
+            $.post('/pause' + a, function(data) {
                 $("#current-song").empty().append(data);
                 $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
                 isPlaying = false;
@@ -20,12 +29,30 @@ $(document).ready(function () {
     });
 
 	$("#next").click(function(){
-        $.post('/next', function(data) {
+        var url = $(location).attr('href');
+        var n = url.indexOf("?isadmin=True");
+        var a;
+        if (n < 0) {
+            a = "";
+        }
+        else {
+            a = url.substring(n, url.length);
+        }
+        $.post('/next' + a, function(data) {
             updateQueue();
         });
     });
 
 	$("#back").click(function(){
+        var url = $(location).attr('href');
+        var n = url.indexOf("?isadmin=True");
+        var a;
+        if (n < 0) {
+            a = "";
+        }
+        else {
+            a = url.substring(n, url.length);
+        }
         $.post('/back', function(data) {
             updateQueue();
         });
@@ -36,13 +63,22 @@ $(document).ready(function () {
     });
 
     $("#search").click(function(){
+        var url = $(location).attr('href');
+        var n = url.indexOf("?isadmin=True");
+        var a;
+        if (n < 0) {
+            a = "";
+        }
+        else {
+            a = url.substring(n, url.length);
+        }
         $.post('/search', {song: $("#search-value").val()}, function(searchList) {
             $("#search-table").empty();
             jQuery.each(searchList, function(index, song) {
                 $("#search-table").append("<tr><td>" + song + "<a class='btn pull-right add-song' data-uri='"+song+"' href='#'><i class='icon-plus icon-large'></i></a></td></tr>");
             });
             $(".add-song").click(function(){
-                $.post('/add', {uri: $(this).data("uri")}, function(data) {
+                $.post('/add'+a, {uri: $(this).data("uri")}, function(data) {
                     alert(data);
                 });
             });
