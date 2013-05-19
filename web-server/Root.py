@@ -62,15 +62,15 @@ class Root(object):
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
-    # @cherrypy.expose
-    # def play(self, nr, isadmin = None):
-    #     if isadmin == None:
-    #         if auth.isAuthorized() != True:
-    #             cherrypy.response.headers['Content-Type'] = 'application/json'
-    #             return simplejson.dumps(media.current())
-    #     media.play(nr)
-    #     cherrypy.response.headers['Content-Type'] = 'application/json'
-    #     return simplejson.dumps(media.current())
+    @cherrypy.expose
+    def play(self, nr = 0, isadmin = None):
+        if isadmin == None:
+            if auth.isAuthorized() != True:
+                cherrypy.response.headers['Content-Type'] = 'application/json'
+                return simplejson.dumps(media.current())
+        media.play(nr)
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return simplejson.dumps(media.current())
 
     @cherrypy.expose
     def pause(self, isadmin = None):
@@ -78,7 +78,7 @@ class Root(object):
             if auth.isAuthorized() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps(media.current())
-        media.paus()
+        media.pause()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
