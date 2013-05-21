@@ -36,7 +36,7 @@ def toggle():
 def play():
         os.system("mpc play")
 
-def play(nr):
+def playNumber(nr):
          changetrack(int(nr))
 
 def pause():
