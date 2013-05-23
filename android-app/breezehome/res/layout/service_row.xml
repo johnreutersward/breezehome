@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1" 
-    android:layout_height="?android:attr/listPreferredItemHeight"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" 
     android:layout_width="fill_parent"
-    android:textSize="20sp"
-    android:paddingLeft="6dip"
-    android:paddingRight="6dip" 
-    android:gravity="center" />
+    android:layout_height="fill_parent"
+    android:padding="10dp">
+    
+    <ImageView android:id="@+id/serviceListIconImage"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/webservice_fragment_icon"
+          />
+    
+    <TextView android:id="@+id/servceListTextItem"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:textStyle="bold"
+        android:textSize="22dp"
+        android:textColor="#000000"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp" />
+    
+    
+        
+</LinearLayout>
