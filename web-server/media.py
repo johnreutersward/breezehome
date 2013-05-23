@@ -24,11 +24,9 @@ def search(str):
 def changetrack(nr):
         for i in range(1, nr):
                 os.system("mpc del 1")
-        os.system("mpc del 0")
-        os.system("mpc play 1")
 
 def next():
-        os.system("mpc next")
+        play(1)
 
 def toggle():
         os.system("mpc toggle")
@@ -36,8 +34,10 @@ def toggle():
 def play():
         os.system("mpc play")
 
-def playNumber(nr):
-         changetrack(int(nr))
+# def play(nr):
+#         changetrack(nr)
+#         os.system("mpc del 0")
+#         os.system("mpc play 1")
 
 def pause():
         os.system("mpc pause")

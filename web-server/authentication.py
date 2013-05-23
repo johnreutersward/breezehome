@@ -1,10 +1,8 @@
 import unittest
-import time
 
 class Authentication(object):
 
-	guestAuthorization = True
-	playControlsTimer = time.time()
+	guestAuthorization = False
 
 	def authorize(self):
 		self.guestAuthorization = True
@@ -12,17 +10,9 @@ class Authentication(object):
 	def deny(self):
 		self.guestAuthorization = False
 
-	def authorizeMusic(self):
-		currentTime = time.time()
-		# Guests should not be able to change music
-		# too often!
-		if currentTime - self.playControlsTimer > 10:
-			self.playControlsTimer = currentTime
-			return self.guestAuthorization
-		return False
-
-	def authorizePlaylist(self):
+	def isAuthorized(self):
 		return self.guestAuthorization
+
 
 # UNIT TESTING
 class TestAuthentication(unittest.TestCase):
@@ -37,16 +27,12 @@ class TestAuthentication(unittest.TestCase):
 		a.deny()
 		self.assertEqual(a.guestAuthorization, False)
 
-	def test_isAuthorized(self):
+	def test_isAuthurized(self):
 		a = Authentication()
 		a.authorize()
-		# This causes tests to run slowly but is
-		# completely necessary to test this
-		# functionality
-		time.sleep(11)
-		self.assertEqual(a.authorizeMusic(), True)
+		self.assertEqual(a.isAuthurized(), True)
 		a.deny()
-		self.assertEqual(a.authorizeMusic(), False)
+		self.assertEqual(a.isAuthurized(), False)
 
 
 

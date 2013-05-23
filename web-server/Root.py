@@ -28,14 +28,14 @@ class Root(object):
         if isadmin == None:
             return "Admin only"
         auth.authorize()
-        return "Guest access granted!"
+        return ""
 
     @cherrypy.expose
     def deny(self, isadmin = None):
         if isadmin == None:
             return "Admin only!"
         auth.deny()
-        return "Guest access revoked!"
+        return ""
 
     @cherrypy.expose
     def index(self):
@@ -47,42 +47,45 @@ class Root(object):
 
     @cherrypy.expose
     def light(self, isadmin = None):
+        if isadmin == None:
+            if auth.isAuthorized() != True:
+                return "not Authorized!"
         return open(os.path.join(TEMPLATES_DIR, u'light_switch.html'))
 
     @cherrypy.expose
     def play(self, isadmin = None):
         if isadmin == None:
-            if auth.authorizeMusic() != True:
+            if auth.isAuthorized() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps(media.current())
         media.play()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
-    @cherrypy.expose
-    def playNumber(self, nr = 0, isadmin = None):
-        if isadmin == None:
-            if auth.authorizeMusic() != True:
-                cherrypy.response.headers['Content-Type'] = 'application/json'
-                return simplejson.dumps(media.current())
-        media.playNumber(nr)
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        return simplejson.dumps(media.current())
+    # @cherrypy.expose
+    # def play(self, nr, isadmin = None):
+    #     if isadmin == None:
+    #         if auth.isAuthorized() != True:
+    #             cherrypy.response.headers['Content-Type'] = 'application/json'
+    #             return simplejson.dumps(media.current())
+    #     media.play(nr)
+    #     cherrypy.response.headers['Content-Type'] = 'application/json'
+    #     return simplejson.dumps(media.current())
 
     @cherrypy.expose
     def pause(self, isadmin = None):
         if isadmin == None:
-            if auth.authorizeMusic() != True:
+            if auth.isAuthorized() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps(media.current())
-        media.pause()
+        media.paus()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
     @cherrypy.expose
     def next(self, isadmin = None):
         if isadmin == None:
-            if auth.authorizeMusic() != True:
+            if auth.isAuthorized() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps("Done")
         media.next()
@@ -97,7 +100,7 @@ class Root(object):
     @cherrypy.expose
     def back(self, isadmin = None):
         if isadmin == None:
-            if auth.authorizeMusic() != True:
+            if auth.isAuthorized() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps("Done")
         media.play()
@@ -106,6 +109,10 @@ class Root(object):
 
     @cherrypy.expose
     def queue(self, isadmin = None):
+        if isadmin == None:
+            if auth.isAuthorized() != True:
+                cherrypy.response.headers['Content-Type'] = 'application/json'
+                return simplejson.dumps(media.queue())
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.queue())
 
@@ -117,7 +124,7 @@ class Root(object):
     @cherrypy.expose
     def add(self, uri, isadmin = None):
         if isadmin == None:
-            if auth.authorizePlaylist() != True:
+            if auth.isAuthorized() != True:
                 return "not Authorized!"
         media.add(uri)
         return "added " + uri

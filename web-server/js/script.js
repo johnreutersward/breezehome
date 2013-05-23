@@ -16,13 +16,13 @@ $(document).ready(function () {
         if (!isPlaying) {
             $.post('/play' + a, function(data) {
                 $("#current-song").empty().append(data);
-                $("#play-pause-icon i").removeClass("icon-play").addClass("icon-pause");
+                $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
                 isPlaying = true;
             });
         } else {
             $.post('/pause' + a, function(data) {
                 $("#current-song").empty().append(data);
-                $("#play-pause-icon i").removeClass("icon-pause").addClass("icon-play");
+                $("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
                 isPlaying = false;
             });
         }

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,21 +9,30 @@
     tools:context=".MainActivity" >
 
     <ImageView
-        android:id="@+id/imageViewLogoAdmin"
+        android:id="@+id/imageViewLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/logo"
         android:src="@drawable/breezehome_logo_1448x206" />
-
-    <Button
-        android:id="@+id/buttonClickMe"
+    
+    <TextView
+        android:id="@+id/textViewHelp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageViewLogoAdmin"
+        android:layout_below="@+id/imageViewLogo"
         android:layout_centerHorizontal="true"
-        android:text="Click me!"
-        android:onClick="clickMe" />
+        android:text="@string/help"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ListView
+        android:id="@+id/listViewService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="35dip"
+        android:layout_below="@+id/textViewHelp"
+        android:layout_centerHorizontal="true" >
+    </ListView>
 
 </RelativeLayout>
