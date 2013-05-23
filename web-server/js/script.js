@@ -85,12 +85,23 @@ $(document).ready(function () {
         });
     });
 
+    function changeTrack(nr) {
+        $.post('/playNumber/'+nr, function(data){
+            updateQueue();
+        });
+    }
+
+
     //Updates the current Queue in the media player
     function updateQueue() {
         $.post('/queue', function(queue) {
             $("#queue-table").empty();
             jQuery.each(queue, function(index, song) {
-                $("#queue-table").append("<tr><td>" + song + "</td></tr>");
+                $("#queue-table").append("<tr><td><a class='songlist' value=" +index+ " href='#'>" + song + "</a></td></tr>");
+            });
+            $(".songlist").click(function(){
+                var ind = $(this).attr("value");
+                changeTrack(ind);
             });
         });
     }

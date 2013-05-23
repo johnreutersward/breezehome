@@ -60,7 +60,7 @@ class Root(object):
         return simplejson.dumps(media.current())
 
     @cherrypy.expose
-    def playNumber(self, nr = 0, isadmin = None):
+    def playNumber(self, nr, isadmin = None):
         if isadmin == None:
             if auth.authorizeMusic() != True:
                 cherrypy.response.headers['Content-Type'] = 'application/json'

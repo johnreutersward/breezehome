@@ -21,12 +21,6 @@ def search(str):
         result = out.split('\n')
         return result
 
-def changetrack(nr):
-        for i in range(1, nr):
-                os.system("mpc del 1")
-        os.system("mpc del 0")
-        os.system("mpc play 1")
-
 def next():
         os.system("mpc next")
 
@@ -37,7 +31,10 @@ def play():
         os.system("mpc play")
 
 def playNumber(nr):
-         changetrack(int(nr))
+        for i in range(1, int(nr)):
+                os.system("mpc del 1")
+        os.system("mpc del 0")
+        os.system("mpc play 1")
 
 def pause():
         os.system("mpc pause")
