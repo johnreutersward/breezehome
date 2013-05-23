@@ -2,8 +2,6 @@ package com.example.breezehome;
 
 import java.util.ArrayList;
 
-import com.example.breezehome.MainActivity.TabListener;
-
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.app.ActionBar;
@@ -11,24 +9,12 @@ import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebViewFragment;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -41,34 +27,35 @@ public class MainActivity extends Activity implements
 		HomeFragment.ActivityListener, 
 		WebServiceFragment.GetUrl {
 	
-	public static Context appContext;
-	public NfcAdapter mNfcAdapter;
-	private String breezehomeSSID;
-	private String breezehomePass;
-	private String breezehomeName;
-	private String breezehomeDescription;
-	private String breezehomeUrl;
-	private BreezehomeService breezehomeService;
+	// NFC
+	private NfcAdapter mNfcAdapter;
+	
+	// WiFi
 	private WifiManager wifi;
 	private WifiInfo wifiInfo;
 	private boolean disconnectOccurred;
 	private String currentSSID;
-	private ArrayList<BreezehomeService> serviceList;
-	
+	private String breezehomeSSID;
+	private String breezehomePass;
+
+	// Action Bar
+	private ActionBar actionbar;
+
+	// HomeFragment
 	private HomeFragment homeFragment;
-	private TabListener<HomeFragment> homeTabListener;
-	ActionBar actionbar;
+	private ActionBar.Tab homeTab;
+	private BreezehomeService breezehomeService;
+	private ArrayList<BreezehomeService> serviceList;
+	private String helpText = "";
 	
-	ActionBar.Tab homeTab;
-    ActionBar.Tab webServiceTab;
-    ActionBar.Tab adminTab;
-	
+	// WebServiceFragment
 	private WebServiceFragment webServiceFragment;
-	private TabListener<WebServiceFragment> webServiceTabListener;
-	
+	private ActionBar.Tab webServiceTab;
 	private String selectedUrl = "";
-	
+
+	// AdminFragment
 	private AdminFragment adminFragment;
+	private ActionBar.Tab adminTab;
 	
 	///////////////////////////////////////////////////////////////////
 	// Activity Life-cycle events
@@ -78,7 +65,6 @@ public class MainActivity extends Activity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("DEBUG", "MainActivity.onCreate");
-        appContext = getApplicationContext();
 
         actionbar = getActionBar();
         actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -87,10 +73,7 @@ public class MainActivity extends Activity implements
         webServiceTab = actionbar.newTab().setText("Service").setIcon(R.drawable.webservice_fragment_icon);
         adminTab = actionbar.newTab().setText("Admin").setIcon(R.drawable.admin_fragment_icon);
         
-        //homeFragment = new HomeFragment();
-        homeTabListener = new TabListener<HomeFragment>(this, "home", HomeFragment.class);
-        homeTab.setTabListener(homeTabListener);
-        
+        homeTab.setTabListener(new TabListener<HomeFragment>(this, "home", HomeFragment.class));
         webServiceTab.setTabListener(new TabListener<WebServiceFragment>(this, "webService", WebServiceFragment.class));
         adminTab.setTabListener(new TabListener<AdminFragment>(this, "admin", AdminFragment.class));
         
@@ -109,39 +92,9 @@ public class MainActivity extends Activity implements
         super.onResume();
         Log.d("DEBUG", "MainActivity.onResume");
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-    	// Unless wifi is enabled there is no point to continue. 
         if (wifi.isWifiEnabled() == false) {
         	wifi.setWifiEnabled(true);
         }
-        
-        // Check if device is already connected to a access point. 
-        wifiInfo = wifi.getConnectionInfo();
-        
-        if (wifiInfo != null) {
-        	currentSSID = wifiInfo.getSSID();
-        	if (breezehomeSSID != null) { 
-        		Log.d("DEBUG", currentSSID.replace("\"", "") + " : " + breezehomeSSID.replace("\"", ""));
-        		// Check if device is already connected to the specified breezehome access point. 
-        		if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
-        			Log.d("DEBUG", "Device is connected to breezehome AP");
-        			// HomeFragment should show that we are connected!
-//        			if (serviceList.isEmpty()) {
-//        				helpTextView.setText("Connected to brezzehome, scan a tag");
-//        			} else {
-//        				helpTextView.setText("Select a service or scan a new tag.");
-//        			}
-        		} else {
-        			// HomeFragment should show that we need to scan first!
-        			//helpTextView.setText("Hold the device close to a tag to begin");
-        		}
-        	} else {
-        		// HomeFragment should show that we need to scan first!
-        		//helpTextView.setText("Hold the device close to a tag to begin");
-        	}
-        }
-		Intent intent = new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        mNfcAdapter.enableForegroundDispatch(this, pIntent, null, null);
         
         if (homeFragment == null) {
         	homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
@@ -153,6 +106,10 @@ public class MainActivity extends Activity implements
         if (adminFragment == null) {
         	adminFragment = (AdminFragment)getFragmentManager().findFragmentByTag("admin");
         }
+
+        Intent intent = new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        mNfcAdapter.enableForegroundDispatch(this, pIntent, null, null);
     }
     
     @Override
@@ -241,7 +198,16 @@ public class MainActivity extends Activity implements
     	this.serviceList = null;
     	this.serviceList = serviceList;
 	}
+    
+    @Override
+	public String getHelpText() {
+		return this.helpText;
+	}
 
+    private void setHomeFragmentHelpText(String helpText) {
+    	this.helpText = helpText;
+    	homeFragment.setHelpText(helpText);
+    }
     
 	///////////////////////////////////////////////////////////////////
 	// WebServiceFragment interface events
@@ -283,6 +249,7 @@ public class MainActivity extends Activity implements
 					if (nfcInfo[4].equalsIgnoreCase("admin")) {
 						isAdmin = true;
 					}
+					setHomeFragmentHelpText("Select a service or scan a new tag");
 					HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
 					homeFragment.addService(new BreezehomeService(nfcInfo[1], nfcInfo[2], nfcInfo[3], isAdmin, str));
 				} else if (nfcInfo.length == 7) {
@@ -300,12 +267,12 @@ public class MainActivity extends Activity implements
 			        	currentSSID = wifiInfo.getSSID();
 			        }
 					if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
-						HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
-						homeFragment.addService(breezehomeService);
-						homeFragment.setHelpText("Select a service or scan a new tag");
+						setHomeFragmentHelpText("Select a service or scan a new tag");
 					} else {
 						wifiAuth();
 					}
+				} else {
+					Toast.makeText(getApplicationContext(), "Invalid breezehome tag", Toast.LENGTH_LONG).show();
 				}
 				for (int i = 0; i < nfcInfo.length; i++) {
 					Log.d("NFC",nfcInfo[i]);
@@ -334,7 +301,7 @@ public class MainActivity extends Activity implements
  	    			if (disconnectOccurred == true) {
  	    				disconnectOccurred = false;
  	    				Log.d("DEBUG", "Connected to access point");
- 	    				homeFragment.setHelpText("Select a service or scan a new tag");
+ 	    				setHomeFragmentHelpText("Select a service or scan a new tag");
 						homeFragment.addService(breezehomeService);
  	    			}
  	    		}
@@ -343,7 +310,7 @@ public class MainActivity extends Activity implements
  	};
 
     private void wifiAuth() {
-    	homeFragment.setHelpText("Connecting ...");
+    	setHomeFragmentHelpText("Connecting ..");
     	WifiConfiguration wifiConf = (WifiConfiguration) new WifiConfiguration();
     	wifiConf.SSID = breezehomeSSID;
     	wifiConf.preSharedKey = breezehomePass;
@@ -352,9 +319,5 @@ public class MainActivity extends Activity implements
     	wifi.enableNetwork(netID, true);
     	registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
     }
-
-	
-
-	
     
 }

@@ -4,33 +4,25 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.ListFragment;
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class HomeFragment extends Fragment {
 	
-		public Activity mainActivity;
-		ActivityListener mListener;
-	
-		// UI
-		public TextView helpTextView;
-		public ListView serviceListView;
-		
-		// NFC
-		public ArrayList<BreezehomeService> serviceList;
-		public ArrayAdapter<BreezehomeService> adapter;
+		private Activity mainActivity;
+		private ActivityListener mListener;
+		private TextView helpTextView;
+		private ListView serviceListView;
+		private ArrayList<BreezehomeService> serviceList;
+		private ArrayAdapter<BreezehomeService> adapter;
 		
 		public HomeFragment() {
 			
@@ -70,16 +62,10 @@ public class HomeFragment extends Fragment {
 	            Log.d("DEBUG", "savedInstaceState NOT null");
 	        }
 	        serviceListView = (ListView) this.getView().findViewById(R.id.list);
-	        
 	        serviceList = mListener.getServiceList();
-	        
 	        if (serviceList == null) {
 	        	serviceList = new ArrayList<BreezehomeService>();
 	        }
-	        
-	        
-	       
-	        
 	        adapter = new ArrayAdapter<BreezehomeService>(getActivity(), R.layout.service_row, R.id.servceListTextItem , serviceList);
 	        serviceListView.setAdapter(adapter);
 	        serviceListView.setOnItemClickListener(serviceClickedhandler);
@@ -89,7 +75,13 @@ public class HomeFragment extends Fragment {
 		public void onResume() {
 	        super.onResume();
 	        Log.d("DEBUG", "HomeFragment.onResume");
-			helpTextView.setText("Checking connection status");
+	        String helpText = mListener.getHelpText();
+	        if (helpText != null) {
+	        	helpTextView.setText(helpText);
+	        }
+	        if (serviceList.size() == 0) {
+	        	helpTextView.setText("Scan a tag to begin");
+	        }
 	    }
 	    
 	    @Override
@@ -111,6 +103,13 @@ public class HomeFragment extends Fragment {
 		// Activity callback's
 		///////////////////////////////////////////////////////////////////
 		
+	    public interface ActivityListener {
+	        public void onServiceSelected(String url);
+	        public ArrayList<BreezehomeService> getServiceList();
+	        public void setServiceList(ArrayList<BreezehomeService> serviceList);
+	        public String getHelpText();
+	    }
+	    
 		public void addService(BreezehomeService service) {
 	    	serviceList.add(service);
 	    	adapter.notifyDataSetChanged();
@@ -132,12 +131,6 @@ public class HomeFragment extends Fragment {
 		///////////////////////////////////////////////////////////////////
 		// Service List events
 		///////////////////////////////////////////////////////////////////
-	    
-	    public interface ActivityListener {
-	        public void onServiceSelected(String url);
-	        public ArrayList<BreezehomeService> getServiceList();
-	        public void setServiceList(ArrayList<BreezehomeService> serviceList);
-	    }
 	    
 	    private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {
 
