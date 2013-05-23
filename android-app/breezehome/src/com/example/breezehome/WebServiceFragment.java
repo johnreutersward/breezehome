@@ -14,7 +14,7 @@ public class WebServiceFragment extends Fragment {
     
 	private WebView mWebView;
     private boolean mIsWebViewAvailable;
-    GetUrl mListener;
+    private OnUrlListener mListener;
 
     public WebServiceFragment() {
     
@@ -29,9 +29,9 @@ public class WebServiceFragment extends Fragment {
 		super.onAttach(activity);
 		Log.d("DEBUG", "WebServiceFragment.onAttach");
 		try {
-            mListener = (GetUrl) activity;
+            mListener = (OnUrlListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnGetUrlListener");
+            throw new ClassCastException(activity.toString() + " must implement OnUrlListener");
         }
     }
     
@@ -84,6 +84,10 @@ public class WebServiceFragment extends Fragment {
         super.onPause();
         mWebView.onPause();
         Log.d("DEBUG", "WebServiceFragment.onPause");
+        String webViewUrl = mWebView.getUrl();
+    	if (webViewUrl != null) {
+    		;
+    	}
     }
     
     /**
@@ -122,8 +126,9 @@ public class WebServiceFragment extends Fragment {
 	// Activity callback's
 	///////////////////////////////////////////////////////////////////
 
-    public interface GetUrl {
+    public interface OnUrlListener {
         public String onGetUrl();
+        public void onSetUrl(String url);
     }
     
     public WebView getWebView() {

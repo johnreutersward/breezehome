@@ -25,7 +25,7 @@ import android.nfc.NfcAdapter;
 
 public class MainActivity extends Activity implements 
 		HomeFragment.ActivityListener, 
-		WebServiceFragment.GetUrl {
+		WebServiceFragment.OnUrlListener {
 	
 	// NFC
 	private NfcAdapter mNfcAdapter;
@@ -218,6 +218,11 @@ public class MainActivity extends Activity implements
 		return this.selectedUrl;
 	}
 	
+	@Override
+	public void onSetUrl(String url) {
+		this.selectedUrl = url;
+	}
+	
     
 	///////////////////////////////////////////////////////////////////
 	// NFC Scanner
@@ -319,5 +324,7 @@ public class MainActivity extends Activity implements
     	wifi.enableNetwork(netID, true);
     	registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
     }
+
+	
     
 }
