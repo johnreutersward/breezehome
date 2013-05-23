@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebServiceFragment extends Fragment {
     
@@ -49,6 +50,7 @@ public class WebServiceFragment extends Fragment {
         	Log.d("DEBUG", "activityUrl: " + activityUrl + " webViewUrl: " + webViewUrl);
         	if (webViewUrl.equalsIgnoreCase(activityUrl)) {
         		Log.d("DEBUG", "WebView url unchanged");
+        		mWebView.setWebViewClient(new WebViewClient());
                 return mWebView;
         	}
         }
@@ -61,6 +63,7 @@ public class WebServiceFragment extends Fragment {
         if (setUrl != null) {
         	mWebView.loadUrl(setUrl);	
         }
+        mWebView.setWebViewClient(new WebViewClient());
         return mWebView;
     }
     
@@ -86,7 +89,7 @@ public class WebServiceFragment extends Fragment {
         Log.d("DEBUG", "WebServiceFragment.onPause");
         String webViewUrl = mWebView.getUrl();
     	if (webViewUrl != null) {
-    		;
+    		mListener.onSetUrl(webViewUrl);
     	}
     }
     
