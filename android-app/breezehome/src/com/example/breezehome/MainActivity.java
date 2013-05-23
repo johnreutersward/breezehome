@@ -38,7 +38,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 
 public class MainActivity extends Activity implements 
-		HomeFragment.OnServiceSelectedListener, 
+		HomeFragment.ActivityListener, 
 		WebServiceFragment.GetUrl {
 	
 	public static Context appContext;
@@ -53,6 +53,7 @@ public class MainActivity extends Activity implements
 	private WifiInfo wifiInfo;
 	private boolean disconnectOccurred;
 	private String currentSSID;
+	private ArrayList<BreezehomeService> serviceList;
 	
 	private HomeFragment homeFragment;
 	private TabListener<HomeFragment> homeTabListener;
@@ -232,8 +233,13 @@ public class MainActivity extends Activity implements
     
     @Override
 	public ArrayList<BreezehomeService> getServiceList() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.serviceList;
+	}
+    
+    @Override
+	public void setServiceList(ArrayList<BreezehomeService> serviceList) {
+    	this.serviceList = null;
+    	this.serviceList = serviceList;
 	}
 
     
@@ -296,6 +302,7 @@ public class MainActivity extends Activity implements
 					if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
 						HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
 						homeFragment.addService(breezehomeService);
+						homeFragment.setHelpText("Select a service or scan a new tag");
 					} else {
 						wifiAuth();
 					}
@@ -327,10 +334,7 @@ public class MainActivity extends Activity implements
  	    			if (disconnectOccurred == true) {
  	    				disconnectOccurred = false;
  	    				Log.d("DEBUG", "Connected to access point");
- 	    				// Add service to List
- 	    				//addService(breezehomeService);
- 	    				//helpTextView.setText("Select a service or scan a new tag.");
- 	    				HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
+ 	    				homeFragment.setHelpText("Select a service or scan a new tag");
 						homeFragment.addService(breezehomeService);
  	    			}
  	    		}
@@ -339,7 +343,7 @@ public class MainActivity extends Activity implements
  	};
 
     private void wifiAuth() {
-    	// TELL HOME THAT WE ARE CONNECTIING helpTextView.setText("Connecting to breezehome, please wait");
+    	homeFragment.setHelpText("Connecting ...");
     	WifiConfiguration wifiConf = (WifiConfiguration) new WifiConfiguration();
     	wifiConf.SSID = breezehomeSSID;
     	wifiConf.preSharedKey = breezehomePass;
@@ -348,6 +352,8 @@ public class MainActivity extends Activity implements
     	wifi.enableNetwork(netID, true);
     	registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
     }
+
+	
 
 	
     

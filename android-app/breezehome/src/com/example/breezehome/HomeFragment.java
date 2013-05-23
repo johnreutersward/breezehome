@@ -22,7 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class HomeFragment extends Fragment {
 	
 		public Activity mainActivity;
-		OnServiceSelectedListener mListener;
+		ActivityListener mListener;
 	
 		// UI
 		public TextView helpTextView;
@@ -46,9 +46,9 @@ public class HomeFragment extends Fragment {
 			Log.d("DEBUG", "HomeFragment.onAttach");
 			this.mainActivity = activity;
 			try {
-	            mListener = (OnServiceSelectedListener) mainActivity;
+	            mListener = (ActivityListener) mainActivity;
 	        } catch (ClassCastException e) {
-	            throw new ClassCastException(activity.toString() + " must implement OnServiceSelectedListener");
+	            throw new ClassCastException(activity.toString() + " must implement ActivityListener");
 	        }
 	    }
 		
@@ -71,12 +71,13 @@ public class HomeFragment extends Fragment {
 	        }
 	        serviceListView = (ListView) this.getView().findViewById(R.id.list);
 	        
-	        serviceList = new ArrayList<BreezehomeService>();
+	        serviceList = mListener.getServiceList();
 	        
-	        // Mock data
-	        serviceList.add(new BreezehomeService("Breeze1", "Media", "http://www.google.se/", true, "asdf"));
-	        serviceList.add(new BreezehomeService("Breeze2", "Cake", "http://www.arla.se/", false, "qwert"));
-	        serviceList.add(new BreezehomeService("Breeze3", "Light", "http://mobil.hitta.se/", false, "fish"));
+	        if (serviceList == null) {
+	        	serviceList = new ArrayList<BreezehomeService>();
+	        }
+	        
+	        
 	       
 	        
 	        adapter = new ArrayAdapter<BreezehomeService>(getActivity(), R.layout.service_row, R.id.servceListTextItem , serviceList);
@@ -95,6 +96,7 @@ public class HomeFragment extends Fragment {
 		public void onPause() {
 	    	super.onPause();
 	    	Log.d("DEBUG", "HomeFragment.onPause");
+	    	mListener.setServiceList(serviceList);
 	    }
 	    
 	    @Override
@@ -131,9 +133,10 @@ public class HomeFragment extends Fragment {
 		// Service List events
 		///////////////////////////////////////////////////////////////////
 	    
-	    public interface OnServiceSelectedListener {
+	    public interface ActivityListener {
 	        public void onServiceSelected(String url);
 	        public ArrayList<BreezehomeService> getServiceList();
+	        public void setServiceList(ArrayList<BreezehomeService> serviceList);
 	    }
 	    
 	    private OnItemClickListener serviceClickedhandler = new OnItemClickListener() {

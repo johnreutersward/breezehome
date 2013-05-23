@@ -2,7 +2,6 @@ package com.example.breezehome;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,11 +24,10 @@ public class AdminFragment extends Fragment implements OnClickListener {
 	///////////////////////////////////////////////////////////////////
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		Log.d("DEBUG", "AdminFragment.onCreate");
-		super.onCreate(savedInstanceState);
-
-	}
+    public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		Log.d("DEBUG", "AdminFragment.onAttach");
+    }
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, 
@@ -44,17 +42,30 @@ public class AdminFragment extends Fragment implements OnClickListener {
 
 	@Override
     public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 		Log.d("DEBUG", "AdminFragment.onActivityCreated");
-        super.onActivityCreated(savedInstanceState);
-    if (savedInstanceState != null) {
+        if (savedInstanceState != null) {
             // Restore last state for checked position.
             Log.d("DEBUG", "savedInstaceState was null");
         }
-}
+	}
+	
+	@Override
+	public void onResume() {
+        super.onResume();
+        Log.d("DEBUG", "AdminFragment.onResume");
+    }
+    
+    @Override
+	public void onPause() {
+    	super.onPause();
+    	Log.d("DEBUG", "AdminFragment.onPause");
+    }
+	
 	@Override
     public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 		Log.d("DEBUG", "AdminFragment.onSaveInstanceState");
-        super.onSaveInstanceState(outState);
         //outState.putInt("curChoice", mCurCheckPosition);
     }
 	
