@@ -1,5 +1,9 @@
 $(document).ready(function () {
     updateQueue();
+    get_status();
+    get_current();
+
+    var status = "[playing]";
 
     function get_parameters() {
         var url = $(location).attr('href');
@@ -22,24 +26,20 @@ $(document).ready(function () {
 
     function get_status() {
         $.post('/get_status', function(data){
-            return data;
+           if(data == "[playing]"){
+                $("#play-pause-icon i").removeClass("icon-play").addClass("icon-pause");
+            }else{
+                $("#play-pause-icon i").removeClass("icon-pause").addClass("icon-play");
+            }
         });
     }
 
     //Controlling play/pause button.
     $("#play-pause").click(function() {
         var a = get_parameters();
-        var status = get_status();
-        if(status == "[playing]"){
-            $.post('/pause' + a, function(data){
-                alert(data);
+        $.post('/toggle' + a, function(data){
             });
-
-        }else{
-            $.post('/play' + a, function(data){
-                alert(data);
-            });
-        }
+        get_status();
     });
 
 	$("#next").click(function(){

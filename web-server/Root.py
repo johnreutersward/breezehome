@@ -25,7 +25,8 @@ auth = authentication.Authentication()
 class Root(object):
     @cherrypy.expose
     def get_status(self):
-        return media.get_status()
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return simplejson.dumps(media.get_status())
 
     @cherrypy.expose
     def authorize(self, isadmin = None):
@@ -60,6 +61,16 @@ class Root(object):
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 return simplejson.dumps(media.current())
         media.play()
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return simplejson.dumps(media.current())
+
+    @cherrypy.expose
+    def toggle(self, isadmin = None):
+        if isadmin == None:
+            if auth.authorizeMusic() != True:
+                cherrypy.response.headers['Content-Type'] = 'application/json'
+                return simplejson.dumps(media.current())
+        media.toggle()
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return simplejson.dumps(media.current())
 
