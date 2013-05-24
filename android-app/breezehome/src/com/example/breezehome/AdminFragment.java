@@ -74,7 +74,6 @@ public class AdminFragment extends Fragment implements OnClickListener {
     	urlTextView = (TextView) v.findViewById(R.id.editTextUrl);
     	urlTextView.setText("http://");
     	adminCheckBox = (CheckBox) v.findViewById(R.id.checkBoxAdmin);
-    	
     }
     
     @Override
@@ -110,7 +109,7 @@ public class AdminFragment extends Fragment implements OnClickListener {
 			String userLevel = "user";
 			if (adminCheckBox.isChecked()) {
 				userLevel = "admin";
-				url += "?isdadmin=True";
+				url += "?isadmin=True";
 			}
 			String tagText = ";" + name + 
 							 ";" + description + 

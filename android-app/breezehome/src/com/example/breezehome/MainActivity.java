@@ -36,12 +36,11 @@ public class MainActivity extends Activity implements
 	
 	// NFC
 	private NfcAdapter mNfcAdapter;
-	private PendingIntent pendingIntent;
 	private IntentFilter tagFilters[];
 	private boolean writeMode;
 	private Tag mytag;
 	
-	// WiFi
+	// WiF
 	private WifiManager wifi;
 	private WifiInfo wifiInfo;
 	private boolean disconnectOccurred;
@@ -81,9 +80,9 @@ public class MainActivity extends Activity implements
         actionbar = getActionBar();
         actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
-        homeTab = actionbar.newTab().setText("Home").setIcon(R.drawable.home_fragment_icon);
-        webServiceTab = actionbar.newTab().setText("Service").setIcon(R.drawable.webservice_fragment_icon);
-        adminTab = actionbar.newTab().setText("Admin").setIcon(R.drawable.admin_fragment_icon);
+        homeTab = actionbar.newTab().setIcon(R.drawable.home_fragment_icon);
+        webServiceTab = actionbar.newTab().setIcon(R.drawable.webservice_fragment_icon);
+        adminTab = actionbar.newTab().setIcon(R.drawable.admin_fragment_icon);
         
         homeTab.setTabListener(new TabListener<HomeFragment>(this, "home", HomeFragment.class));
         webServiceTab.setTabListener(new TabListener<WebServiceFragment>(this, "webService", WebServiceFragment.class));

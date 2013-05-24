@@ -17,7 +17,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/logo"
-        android:src="@drawable/breezehome_logo_1448x206" />
+        android:src="@drawable/breezehome_cut_814x116" />
     
     <TextView
         android:id="@+id/textViewHelp"
@@ -32,7 +32,6 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="35dip"
         android:layout_below="@+id/textViewHelp"
         android:layout_centerHorizontal="true" >
     </ListView>

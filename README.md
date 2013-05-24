@@ -1,4 +1,4 @@
 breezehome
 ==========
 
-Easy to configure smart homes using RFID/NFC and Network Service Discovery
+Easy to use interactive smart home services using NFC, Android and CherryPy
