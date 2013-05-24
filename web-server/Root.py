@@ -38,7 +38,7 @@ class Root(object):
         return "Guest access revoked!"
 
     @cherrypy.expose
-    def index(self):
+    def index(self, isadmin = None):
         return open(os.path.join(TEMPLATES_DIR, u'index.html'))
 
     @cherrypy.expose

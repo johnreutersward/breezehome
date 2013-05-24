@@ -1,9 +1,7 @@
 $(document).ready(function () {
     updateQueue();
 
-    //Controlling play/pause button.
-    var isPlaying = false;  
-    $("#play-pause").click(function() {
+    function get_parameters() {
         var url = $(location).attr('href');
         var n = url.indexOf("?isadmin=True");
         var a;
@@ -13,6 +11,13 @@ $(document).ready(function () {
         else {
             a = url.substring(n, url.lenght);
         }
+        return a;
+    }
+
+    //Controlling play/pause button.
+    var isPlaying = false;  
+    $("#play-pause").click(function() {
+        a = get_parameters();
         if (!isPlaying) {
             $.post('/play' + a, function(data) {
                 $("#current-song").empty().append(data);
@@ -29,30 +34,14 @@ $(document).ready(function () {
     });
 
 	$("#next").click(function(){
-        var url = $(location).attr('href');
-        var n = url.indexOf("?isadmin=True");
-        var a;
-        if (n < 0) {
-            a = "";
-        }
-        else {
-            a = url.substring(n, url.length);
-        }
+        a = get_parameters();
         $.post('/next' + a, function(data) {
             updateQueue();
         });
     });
 
 	$("#back").click(function(){
-        var url = $(location).attr('href');
-        var n = url.indexOf("?isadmin=True");
-        var a;
-        if (n < 0) {
-            a = "";
-        }
-        else {
-            a = url.substring(n, url.length);
-        }
+        a = get_parameters();
         $.post('/back', function(data) {
             updateQueue();
         });
@@ -63,15 +52,7 @@ $(document).ready(function () {
     });
 
     $("#search").click(function(){
-        var url = $(location).attr('href');
-        var n = url.indexOf("?isadmin=True");
-        var a;
-        if (n < 0) {
-            a = "";
-        }
-        else {
-            a = url.substring(n, url.length);
-        }
+        a = get_parameters();
         $.post('/search', {song: $("#search-value").val()}, function(searchList) {
             $("#search-table").empty();
             jQuery.each(searchList, function(index, song) {
@@ -83,6 +64,14 @@ $(document).ready(function () {
                 });
             });
         });
+    });
+
+    $("#authorize").click(function(){
+        authorize();
+    });
+
+    $("#deny").click(function(){
+        deny();
     });
 
     function changeTrack(nr) {
@@ -111,4 +100,20 @@ $(document).ready(function () {
             $("current-song").val(song);
         });
     }
+
+
+    function authorize() {
+        var a = get_parameters();
+        $.post('/authorize' + a, function(data){
+            alert(data);
+        });
+    }
+
+    function deny() {
+        var a = get_parameters();
+        $.post('/deny' + a, function(data){
+            alert(data);
+        });
+    }
+
 }); //search-table
