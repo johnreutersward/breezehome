@@ -305,6 +305,7 @@ public class MainActivity extends Activity implements
 		        	currentSSID = wifiInfo.getSSID();
 		        }
 				if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
+					homeFragment.addService(breezehomeService);
 					setHomeFragmentHelpText("Select a service or scan a new tag");
 				} else {
 					wifiAuth();
