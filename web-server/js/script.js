@@ -14,34 +14,43 @@ $(document).ready(function () {
         return a;
     }
 
+    function get_current() {
+        $.post('/getCurrentSong', function(data){
+            $("#current-song").empty().append(data);
+        });
+    }
+
+    function get_status() {
+        $.post('/get_status', function(data){
+            return data;
+        });
+    }
+
     //Controlling play/pause button.
-    var isPlaying = false;  
     $("#play-pause").click(function() {
-        a = get_parameters();
-        if (!isPlaying) {
-            $.post('/play' + a, function(data) {
-                $("#current-song").empty().append(data);
-                $("#play-pause-icon i").removeClass("icon-play").addClass("icon-pause");
-                isPlaying = true;
+        var a = get_parameters();
+        var status = get_status();
+        if(status == "[playing]"){
+            $.post('/pause' + a, function(data){
+                alert(data);
             });
-        } else {
-            $.post('/pause' + a, function(data) {
-                $("#current-song").empty().append(data);
-                $("#play-pause-icon i").removeClass("icon-pause").addClass("icon-play");
-                isPlaying = false;
+
+        }else{
+            $.post('/play' + a, function(data){
+                alert(data);
             });
         }
     });
 
 	$("#next").click(function(){
-        a = get_parameters();
+        var a = get_parameters();
         $.post('/next' + a, function(data) {
             updateQueue();
         });
     });
 
 	$("#back").click(function(){
-        a = get_parameters();
+        var a = get_parameters();
         $.post('/back', function(data) {
             updateQueue();
         });
@@ -52,7 +61,7 @@ $(document).ready(function () {
     });
 
     $("#search").click(function(){
-        a = get_parameters();
+        var a = get_parameters();
         $.post('/search', {song: $("#search-value").val()}, function(searchList) {
             $("#search-table").empty();
             jQuery.each(searchList, function(index, song) {
