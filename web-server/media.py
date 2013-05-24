@@ -4,6 +4,17 @@ import subprocess
 def add(uri):
         os.system("mpc add " + uri)
 
+def get_status():
+        proc = subprocess.Popen(["mpc status"], stdout=subprocess.PIPE, shell=True)
+        (out, err) = proc.communicate()
+        tmp = out.split('\n')
+        tmp2 = tmp[1]
+        result = tmp2.split(' ')
+        if result[0] == "[playing]" or result[0] == "[paused]":
+                return result[0]
+        else:
+                return "[stopped]"
+
 def current():
         proc = subprocess.Popen(["mpc current", "current"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()

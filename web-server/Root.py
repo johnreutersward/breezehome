@@ -24,6 +24,10 @@ auth = authentication.Authentication()
 
 class Root(object):
     @cherrypy.expose
+    def get_status(self):
+        return media.get_status()
+
+    @cherrypy.expose
     def authorize(self, isadmin = None):
         if isadmin == None:
             return "Admin only"
