@@ -9,11 +9,18 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 public class AdminFragment extends Fragment implements OnClickListener {
 	
-	Button buttonClick;
+	private Button buttonClick;
+	private TextView nameTextView;
+	private TextView descriptionTextView;
+	private TextView urlTextView;
+	private CheckBox adminCheckBox;
+	private ActivityListener mListener;
+	private View v;
 	
 	public AdminFragment() {
 		
@@ -27,6 +34,11 @@ public class AdminFragment extends Fragment implements OnClickListener {
     public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		Log.d("DEBUG", "AdminFragment.onAttach");
+		try {
+            mListener = (ActivityListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ActivityListener");
+        }
     }
 	
 	@Override
@@ -34,7 +46,7 @@ public class AdminFragment extends Fragment implements OnClickListener {
         Bundle savedInstanceState) {
 		Log.d("DEBUG", "AdminFragment.onCreateView");
         // Inflate the layout for this fragment
-        View v =  inflater.inflate(R.layout.admin_view, container, false);
+        v =  inflater.inflate(R.layout.admin_view, container, false);
         buttonClick = (Button) v.findViewById(R.id.buttonClickMe);
         buttonClick.setOnClickListener(this);
         return v;
@@ -54,6 +66,13 @@ public class AdminFragment extends Fragment implements OnClickListener {
 	public void onResume() {
         super.onResume();
         Log.d("DEBUG", "AdminFragment.onResume");
+        nameTextView = (TextView) v.findViewById(R.id.editTextName);
+        nameTextView.setText("breezehome");
+    	descriptionTextView = (TextView) v.findViewById(R.id.editTextDescription);
+    	urlTextView = (TextView) v.findViewById(R.id.editTextUrl);
+    	urlTextView.setText("http://www.arla.se/");
+    	adminCheckBox = (CheckBox) v.findViewById(R.id.checkBoxAdmin);
+    	
     }
     
     @Override
@@ -66,14 +85,24 @@ public class AdminFragment extends Fragment implements OnClickListener {
     public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Log.d("DEBUG", "AdminFragment.onSaveInstanceState");
-        //outState.putInt("curChoice", mCurCheckPosition);
     }
 	
-
+	public interface ActivityListener {
+		public void writeToTag(String tagText);
+    }
+	
 	@Override
 	public void onClick(View v) {
-		ImageView logo = (ImageView) this.getView().findViewById(R.id.imageViewLogoAdmin);
-		logo.setVisibility(View.INVISIBLE);
+		String userLevel = "user";
+		if (adminCheckBox.isChecked()) {
+			userLevel = "admin";
+		}
+		String tagText = ";" + nameTextView.getText().toString() + 
+						 ";" + descriptionTextView.getText().toString() + 
+						 ";" + urlTextView.getText().toString() + 
+						 ";" + userLevel;
+		Log.d("DEBUG", "AdminFragment.onClick");
+		mListener.writeToTag(tagText);
 	}
 	
 }

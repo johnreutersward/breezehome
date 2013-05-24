@@ -1,5 +1,7 @@
 package com.example.breezehome;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.os.Bundle;
@@ -20,15 +22,24 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.SupplicantState;
+import android.nfc.FormatException;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 
 public class MainActivity extends Activity implements 
 		HomeFragment.ActivityListener, 
-		WebServiceFragment.OnUrlListener {
+		WebServiceFragment.OnUrlListener,
+		AdminFragment.ActivityListener {
 	
 	// NFC
 	private NfcAdapter mNfcAdapter;
+	private PendingIntent pendingIntent;
+	private IntentFilter tagFilters[];
+	private boolean writeMode;
+	private Tag mytag;
 	
 	// WiFi
 	private WifiManager wifi;
@@ -56,6 +67,7 @@ public class MainActivity extends Activity implements
 	// AdminFragment
 	private AdminFragment adminFragment;
 	private ActionBar.Tab adminTab;
+	private String tagText = "";
 	
 	///////////////////////////////////////////////////////////////////
 	// Activity Life-cycle events
@@ -109,7 +121,12 @@ public class MainActivity extends Activity implements
 
         Intent intent = new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        mNfcAdapter.enableForegroundDispatch(this, pIntent, null, null);
+        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        IntentFilter ndefDetected = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        ndefDetected.addCategory(Intent.CATEGORY_DEFAULT);
+        tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
+		tagFilters = new IntentFilter[] { ndefDetected, tagDetected };
+        mNfcAdapter.enableForegroundDispatch(this, pIntent, tagFilters, null);
     }
     
     @Override
@@ -223,67 +240,134 @@ public class MainActivity extends Activity implements
 		this.selectedUrl = url;
 	}
 	
+	///////////////////////////////////////////////////////////////////
+	// AdminFragment interface events
+	///////////////////////////////////////////////////////////////////
+	
+	@Override
+	public void writeToTag(String tagText) {
+		this.writeMode = true;
+		this.tagText = tagText;
+	}
+	
     
 	///////////////////////////////////////////////////////////////////
-	// NFC Scanner
+	// NFC Scanner/Writer
 	///////////////////////////////////////////////////////////////////
     
     @Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		resolveNfcIntent(intent);
-	}
-    
-    private void resolveNfcIntent(Intent intent) {
-		String action = intent.getAction();
-		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-			Parcelable[] rawMsgs = intent
-					.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-			if (rawMsgs != null) {
-				NdefMessage[] messages = new NdefMessage[rawMsgs.length];
-				for (int i = 0; i < rawMsgs.length; i++) {
-					messages[i] = (NdefMessage) rawMsgs[i];
-				}
-				String str = new String(
-						messages[0].getRecords()[0].getPayload());
-				Log.d("NFC",str);
-				String[] nfcInfo = str.split(";");
-				boolean isAdmin = false;
-				if (nfcInfo.length == 5) {
-					Log.d("NFC","Scanned a service tag");
-					if (nfcInfo[4].equalsIgnoreCase("admin")) {
-						isAdmin = true;
-					}
-					setHomeFragmentHelpText("Select a service or scan a new tag");
-					HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
-					homeFragment.addService(new BreezehomeService(nfcInfo[1], nfcInfo[2], nfcInfo[3], isAdmin, str));
-				} else if (nfcInfo.length == 7) {
-					Log.d("NFC","Scanned a auth/service tag");
-					breezehomeSSID = "\"" + nfcInfo[1] + "\"";
-					breezehomePass = "\"" + nfcInfo[2] + "\"";
-					if (nfcInfo[6].equalsIgnoreCase("admin")) {
-						isAdmin = true;
-					}
-					
-					breezehomeService = new BreezehomeService(nfcInfo[3], nfcInfo[4], nfcInfo[5], isAdmin, str);
-					wifiInfo = wifi.getConnectionInfo();
-			        
-			        if (wifiInfo != null) {
-			        	currentSSID = wifiInfo.getSSID();
-			        }
-					if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
-						setHomeFragmentHelpText("Select a service or scan a new tag");
-					} else {
-						wifiAuth();
-					}
-				} else {
-					Toast.makeText(getApplicationContext(), "Invalid breezehome tag", Toast.LENGTH_LONG).show();
-				}
-				for (int i = 0; i < nfcInfo.length; i++) {
-					Log.d("NFC",nfcInfo[i]);
-				}
+		String intentAction = intent.getAction().toString();
+		Log.d("NFC", "MainActivity.onNewIntent - " + intentAction);
+		if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
+			if (writeMode) {
+				writeTag(intent);
+			} else {
+				readTag(intent);
 			}
 		}
+	}
+    
+    private void readTag(Intent intent) {
+    	Log.d("NFC", "readTag");
+		Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		if (rawMsgs != null) {
+			NdefMessage[] messages = new NdefMessage[rawMsgs.length];
+			for (int i = 0; i < rawMsgs.length; i++) {
+				messages[i] = (NdefMessage) rawMsgs[i];
+			}
+			String str = new String(
+					messages[0].getRecords()[0].getPayload());
+			Log.d("NFC",str);
+			String[] nfcInfo = str.split(";");
+			boolean isAdmin = false;
+			if (nfcInfo.length == 5) {
+				Log.d("NFC","Scanned a service tag");
+				if (nfcInfo[4].equalsIgnoreCase("admin")) {
+					isAdmin = true;
+				}
+				setHomeFragmentHelpText("Select a service or scan a new tag");
+				HomeFragment homeFragment = (HomeFragment)getFragmentManager().findFragmentByTag("home");
+				homeFragment.addService(new BreezehomeService(nfcInfo[1], nfcInfo[2], nfcInfo[3], isAdmin, str));
+			} else if (nfcInfo.length == 7) {
+				Log.d("NFC","Scanned a auth/service tag");
+				breezehomeSSID = "\"" + nfcInfo[1] + "\"";
+				breezehomePass = "\"" + nfcInfo[2] + "\"";
+				if (nfcInfo[6].equalsIgnoreCase("admin")) {
+					isAdmin = true;
+				}
+				
+				breezehomeService = new BreezehomeService(nfcInfo[3], nfcInfo[4], nfcInfo[5], isAdmin, str);
+				wifiInfo = wifi.getConnectionInfo();
+		        
+		        if (wifiInfo != null) {
+		        	currentSSID = wifiInfo.getSSID();
+		        }
+				if (currentSSID.replace("\"", "").equalsIgnoreCase(breezehomeSSID.replace("\"", ""))) {
+					setHomeFragmentHelpText("Select a service or scan a new tag");
+				} else {
+					wifiAuth();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "Invalid breezehome tag", Toast.LENGTH_LONG).show();
+			}
+			for (int i = 0; i < nfcInfo.length; i++) {
+				Log.d("NFC",nfcInfo[i]);
+			}
+		}
+	}
+    
+    private void writeTag(Intent intent) {
+    	Log.d("NFC", "writeTag");
+    	mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+    	Log.d("NFC", "tag: " + mytag.toString());
+    	try {
+			write(tagText, mytag);
+		} catch (IOException e) {
+			Toast.makeText(getApplicationContext(), "Tag writing was NOT successful!", Toast.LENGTH_LONG ).show();
+		} catch (FormatException e) {
+			Toast.makeText(getApplicationContext(), "Tag writing was NOT successful!", Toast.LENGTH_LONG ).show();
+		}
+    	Toast.makeText(getApplicationContext(), "Tag writing successful!", Toast.LENGTH_LONG ).show();
+    	writeMode = false;
+    }
+    
+    private void write(String text, Tag tag) throws IOException, FormatException 
+	{
+
+		NdefRecord[] records = { createRecord(text) };
+		NdefMessage  message = new NdefMessage(records);
+		
+		// Get an instance of Ndef for the tag.
+		Ndef ndef = Ndef.get(tag);
+		// Enable I/O
+		ndef.connect();
+		// Write the message
+		ndef.writeNdefMessage(message);
+		// Close the connection
+		ndef.close();
+	}
+    
+    private NdefRecord createRecord(String text) throws UnsupportedEncodingException 
+	{
+		String lang       = "en";
+		byte[] textBytes  = text.getBytes();
+		byte[] langBytes  = lang.getBytes("US-ASCII");
+		int    langLength = langBytes.length;
+		int    textLength = textBytes.length;
+		byte[] payload    = new byte[1 + langLength + textLength];
+
+		// set status byte (see NDEF spec for actual bits)
+		payload[0] = (byte) langLength;
+
+		// copy langbytes and textbytes into payload
+		System.arraycopy(langBytes, 0, payload, 1,              langLength);
+		System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength);
+
+		NdefRecord recordNFC = new NdefRecord(NdefRecord.TNF_WELL_KNOWN,  NdefRecord.RTD_TEXT,  new byte[0], payload);
+
+		return recordNFC;
 	}
     
     
@@ -326,5 +410,5 @@ public class MainActivity extends Activity implements
     }
 
 	
-    
+
 }

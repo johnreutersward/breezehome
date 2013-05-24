@@ -10,22 +10,55 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <ImageView
-        android:id="@+id/imageViewLogoAdmin"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:contentDescription="@string/logo"
-        android:src="@drawable/breezehome_logo_1448x206" />
+        android:hint="Name of service"
+        android:inputType="text"
+        android:ems="10" >
 
-    <Button
-        android:id="@+id/buttonClickMe"
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextName"
+        android:layout_centerHorizontal="true"
+        android:hint="Description"
+        android:inputType="text"
+        android:ems="10" />
+    
+    <EditText
+        android:id="@+id/editTextUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextDescription"
+        android:layout_centerHorizontal="true"
+        android:hint="Url"
+        android:inputType="text"
+        android:ems="10" />
+    
+
+    <CheckBox
+        android:id="@+id/checkBoxAdmin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageViewLogoAdmin"
+        android:layout_below="@+id/editTextUrl"
         android:layout_centerHorizontal="true"
-        android:text="Click me!"
-        android:onClick="clickMe" />
+        android:text="Admin" />
+    
+    <Button
+        android:id="@+id/buttonClickMe"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/checkBoxAdmin"
+        android:layout_centerHorizontal="true"
+        android:onClick="clickMe"
+        android:text="Write to tag!" />
 
 </RelativeLayout>
