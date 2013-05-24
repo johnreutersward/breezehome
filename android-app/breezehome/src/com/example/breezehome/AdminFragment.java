@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AdminFragment extends Fragment implements OnClickListener {
 	
@@ -67,10 +68,11 @@ public class AdminFragment extends Fragment implements OnClickListener {
         super.onResume();
         Log.d("DEBUG", "AdminFragment.onResume");
         nameTextView = (TextView) v.findViewById(R.id.editTextName);
-        nameTextView.setText("breezehome");
+        nameTextView.setText("breezehomeStart");
     	descriptionTextView = (TextView) v.findViewById(R.id.editTextDescription);
+    	descriptionTextView.setText("Technology is exciting!");
     	urlTextView = (TextView) v.findViewById(R.id.editTextUrl);
-    	urlTextView.setText("http://www.arla.se/");
+    	urlTextView.setText("http://");
     	adminCheckBox = (CheckBox) v.findViewById(R.id.checkBoxAdmin);
     	
     }
@@ -87,22 +89,39 @@ public class AdminFragment extends Fragment implements OnClickListener {
 		Log.d("DEBUG", "AdminFragment.onSaveInstanceState");
     }
 	
+	///////////////////////////////////////////////////////////////////
+	// Activity callback's
+	///////////////////////////////////////////////////////////////////
+	
 	public interface ActivityListener {
 		public void writeToTag(String tagText);
     }
 	
+	///////////////////////////////////////////////////////////////////
+	// Tag Writing events
+	///////////////////////////////////////////////////////////////////
+	
 	@Override
 	public void onClick(View v) {
-		String userLevel = "user";
-		if (adminCheckBox.isChecked()) {
-			userLevel = "admin";
+		String name = nameTextView.getText().toString(); 
+		String description =  descriptionTextView.getText().toString();
+		String url =  urlTextView.getText().toString(); 
+		if (name.length() > 0 || description.length() > 0 || url.length() > 0) {
+			String userLevel = "user";
+			if (adminCheckBox.isChecked()) {
+				userLevel = "admin";
+				url += "?isdadmin=True";
+			}
+			String tagText = ";" + name + 
+							 ";" + description + 
+							 ";" + url + 
+							 ";" + userLevel;
+			Log.d("DEBUG", "AdminFragment.onClick");
+			mListener.writeToTag(tagText);
+			Toast.makeText(getActivity().getApplicationContext(), "Hold a tag close to the device", Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(getActivity().getApplicationContext(), "Please fill in all the fields!", Toast.LENGTH_LONG).show();
 		}
-		String tagText = ";" + nameTextView.getText().toString() + 
-						 ";" + descriptionTextView.getText().toString() + 
-						 ";" + urlTextView.getText().toString() + 
-						 ";" + userLevel;
-		Log.d("DEBUG", "AdminFragment.onClick");
-		mListener.writeToTag(tagText);
 	}
 	
 }

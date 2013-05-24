@@ -248,6 +248,7 @@ public class MainActivity extends Activity implements
 	public void writeToTag(String tagText) {
 		this.writeMode = true;
 		this.tagText = tagText;
+		
 	}
 	
     
