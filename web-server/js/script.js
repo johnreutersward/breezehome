@@ -1,9 +1,12 @@
 $(document).ready(function () {
-    updateQueue();
-    get_status();
-    get_current();
+    
+    refresh();
 
-    var status = "[playing]";
+    function refresh(){
+        get_status();
+        updateQueue();
+        get_current();
+    }
 
     function get_parameters() {
         var url = $(location).attr('href');
@@ -38,6 +41,11 @@ $(document).ready(function () {
     $("#play-pause").click(function() {
         var a = get_parameters();
         $.post('/toggle' + a, function(data){
+            if(data == "denied"){
+                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+            }else{
+                $("#status").removeClass().text("");
+            }
             });
         get_status();
     });
@@ -45,19 +53,24 @@ $(document).ready(function () {
 	$("#next").click(function(){
         var a = get_parameters();
         $.post('/next' + a, function(data) {
-            updateQueue();
+            if(data == "denied"){
+                $("#status").removeClass().addClass("text-error").text("You're not allowed to do that");
+            }else{
+                $("#status").removeClass().text("");
+            }
+            refresh();
         });
     });
 
 	$("#back").click(function(){
         var a = get_parameters();
         $.post('/back', function(data) {
-            updateQueue();
+            refresh();
         });
     });
 
     $("#queue-link").click(function(){
-        updateQueue();
+        refresh();
     });
 
     $("#search").click(function(){
@@ -65,11 +78,30 @@ $(document).ready(function () {
         $.post('/search', {song: $("#search-value").val()}, function(searchList) {
             $("#search-table").empty();
             jQuery.each(searchList, function(index, song) {
-                $("#search-table").append("<tr><td>" + song + "<a class='btn pull-right add-song' data-uri='"+song+"' href='#'><i class='icon-plus icon-large'></i></a></td></tr>");
-            });
-            $(".add-song").click(function(){
-                $.post('/add'+a, {uri: $(this).data("uri")}, function(data) {
-                    alert(data);
+                $.get("http://ws.spotify.com/lookup/1/.json?uri=" + song, function(data){
+                    console.log(data);
+                    var type = data.info.type;
+                    var name;
+                    if(type == "artist"){
+                        name = data.artist.name;
+                    }else if(type == "track"){
+                        name = data.track.name;
+                    }else if(type == "album"){
+                        name = data.album.name;
+                    }
+
+                    $("#search-table").append("<tr><td>" + type + ": " + name + "<a id=song" + index + " class='btn pull-right add-song' data-uri='"+song+"' href='#'><i class='icon-plus icon-large'></i></a></td></tr>");
+                
+                    $("#song"+index).click(function() {
+                        $.post('/add'+a, {uri: $(this).data("uri")}, function(data) {
+                            if(data == "denied"){
+                                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+                            }else{
+                                $("#status").removeClass().addClass("text-success").text(name +" added");
+                            }
+                            
+                        });
+                    });
                 });
             });
         });
@@ -85,7 +117,12 @@ $(document).ready(function () {
 
     function changeTrack(nr) {
         $.post('/playNumber/'+nr, function(data){
-            updateQueue();
+            if(data == "denied"){
+                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+            }else{
+                $("#status").removeClass().text("");
+            }
+            refresh();
         });
     }
 
@@ -124,5 +161,7 @@ $(document).ready(function () {
             alert(data);
         });
     }
+
+
 
 }); //search-table
