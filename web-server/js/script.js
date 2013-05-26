@@ -118,7 +118,7 @@ $(document).ready(function () {
     function changeTrack(nr) {
         $.post('/playNumber/'+nr, function(data){
             if(data == "denied"){
-                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+                $("#status").removeClass().addClass("text-error").text("You're not allowed to do that");
             }else{
                 $("#status").removeClass().text("");
             }
