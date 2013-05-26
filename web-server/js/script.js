@@ -42,7 +42,7 @@ $(document).ready(function () {
         var a = get_parameters();
         $.post('/toggle' + a, function(data){
             if(data == "denied"){
-                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+                $("#status").removeClass().addClass("text-error").text("You're not allowed to do that");
             }else{
                 $("#status").removeClass().text("");
             }
@@ -95,7 +95,7 @@ $(document).ready(function () {
                     $("#song"+index).click(function() {
                         $.post('/add'+a, {uri: $(this).data("uri")}, function(data) {
                             if(data == "denied"){
-                                $("#status").removeClass().addClass("text-warning").text("You're not allowed to do that");
+                                $("#status").removeClass().addClass("text-error").text("You're not allowed to do that");
                             }else{
                                 $("#status").removeClass().addClass("text-success").text(name +" added");
                             }
