@@ -27,7 +27,7 @@ def queue():
         return result
 
 def search(str):
-        proc = subprocess.Popen(["mpc search any " + str, "current"], stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(["mpc search any '" + str +"'", "current"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
         result = out.split('\n')
         return result
